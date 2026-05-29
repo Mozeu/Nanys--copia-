@@ -45,6 +45,8 @@ fun BookingEntity.toDomain(
     tutorName: String = "",
     caregiverName: String = "",
     childName: String = "",
+    childIdsParam: List<Long> = childIds.split(",").mapNotNull { it.toLongOrNull() }
+        .ifEmpty { childId?.let { listOf(it) } ?: emptyList() },
     tutorNotes: String = ""
 ) = Booking(
     id = id,
@@ -57,6 +59,7 @@ fun BookingEntity.toDomain(
     durationHours = durationHours,
     location = location,
     childId = childId,
+    childIds = childIdsParam,
     childName = childName,
     additionalNotes = additionalNotes,
     tutorNotes = tutorNotes,

@@ -170,7 +170,7 @@ fun BookAppointmentScreen(viewModel: NanysViewModel, caregiverEmail: String, onB
     var duration by remember { mutableIntStateOf(1) }
     var location by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
-    var selectedChildId by remember { mutableLongStateOf(0L) }
+    var selectedChildIds by remember { mutableStateOf(setOf<Long>()) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     var showPaymentDialog by remember { mutableStateOf(false) }
@@ -180,6 +180,9 @@ fun BookAppointmentScreen(viewModel: NanysViewModel, caregiverEmail: String, onB
 
     val hourlyRate = profile?.hourlyRate ?: 0.0
     val total = hourlyRate * duration
+    val children = tutorProfile?.children.orEmpty()
+    val childIdSet = children.map { it.id }.toSet()
+    val validSelectedChildIds = selectedChildIds.intersect(childIdSet)
 
     if (showPaymentDialog) {
         AlertDialog(
@@ -201,11 +204,31 @@ fun BookAppointmentScreen(viewModel: NanysViewModel, caregiverEmail: String, onB
                 Spacer(Modifier.width(4.dp))
             }}
             OutlinedTextField(location, { location = it }, label = { Text("Ubicación (dirección)") }, modifier = Modifier.fillMaxWidth())
-            tutorProfile?.children?.forEach { child ->
+            Text("Hijos/as", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 8.dp))
+            if (children.isEmpty()) {
+                Text(
+                    "Agrega al menos un hijo/a en tu perfil antes de reservar.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            children.forEach { child ->
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    RadioButton(selected = selectedChildId == child.id, onClick = { selectedChildId = child.id })
+                    Checkbox(
+                        checked = child.id in validSelectedChildIds,
+                        onCheckedChange = { checked ->
+                            selectedChildIds = if (checked) selectedChildIds + child.id else selectedChildIds - child.id
+                        }
+                    )
                     Text("${child.name} (${child.age} años)")
                 }
+            }
+            if (children.isNotEmpty() && validSelectedChildIds.isEmpty()) {
+                Text(
+                    "Selecciona al menos un hijo/a.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
             OutlinedTextField(notes, { notes = it }, label = { Text("Notas adicionales") }, modifier = Modifier.fillMaxWidth())
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
@@ -213,9 +236,10 @@ fun BookAppointmentScreen(viewModel: NanysViewModel, caregiverEmail: String, onB
             }
             Button(
                 onClick = {
-                    viewModel.createBooking(caregiverEmail, date, hour, minute, duration, location, selectedChildId.takeIf { it > 0 }, notes, hourlyRate)
+                    viewModel.createBooking(caregiverEmail, date, hour, minute, duration, location, validSelectedChildIds.toList(), notes, hourlyRate)
                     showPaymentDialog = true
                 },
+                enabled = validSelectedChildIds.isNotEmpty(),
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Confirmar reserva") }
         }

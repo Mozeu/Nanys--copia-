@@ -133,7 +133,10 @@ fun BookingCard(booking: Booking, onClick: (() -> Unit)? = null) {
                 Text("${booking.date} · ${booking.timeSlot}", fontWeight = FontWeight.SemiBold)
                 Text("Cuidador: ${booking.caregiverName.ifBlank { booking.caregiverEmail }}")
                 Text("Tutor: ${booking.tutorName.ifBlank { booking.tutorEmail }}")
-                if (booking.childName.isNotBlank()) Text("Niño/a: ${booking.childName}")
+                if (booking.childName.isNotBlank()) {
+                    val childLabel = if (booking.childIds.size == 1) "Niño/a" else "Niños/as"
+                    Text("$childLabel: ${booking.childName}")
+                }
                 Text("📍 ${booking.location}")
                 if (booking.tutorNotes.isNotBlank()) {
                     Spacer(Modifier.height(4.dp))

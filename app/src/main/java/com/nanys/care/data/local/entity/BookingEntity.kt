@@ -2,6 +2,7 @@ package com.nanys.care.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.Index
+import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -22,6 +23,8 @@ data class BookingEntity(
     val durationHours: Int = 1,
     val location: String = "",
     val childId: Long? = null,
+    @ColumnInfo(defaultValue = "''")
+    val childIds: String = "",
     val additionalNotes: String = "",
     val totalPrice: Double = 0.0,
     val status: String = "pending",

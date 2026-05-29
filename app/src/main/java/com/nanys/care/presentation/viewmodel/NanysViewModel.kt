@@ -12,6 +12,7 @@ import com.nanys.care.data.local.entity.ReviewEntity
 import com.nanys.care.data.local.entity.TutorProfileEntity
 import com.nanys.care.data.mapper.toDomain
 import com.nanys.care.domain.model.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -34,6 +35,7 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
 
     private val _bookings = MutableStateFlow<List<Booking>>(emptyList())
     val bookings: StateFlow<List<Booking>> = _bookings.asStateFlow()
+    private var bookingsJob: Job? = null
 
     private val _conversations = MutableStateFlow<List<ConversationSummary>>(emptyList())
     val conversations: StateFlow<List<ConversationSummary>> = _conversations.asStateFlow()
@@ -152,7 +154,8 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     fun loadBookingsForCaregiver(email: String) {
-        viewModelScope.launch {
+        bookingsJob?.cancel()
+        bookingsJob = viewModelScope.launch {
             container.bookingRepository.observeByCaregiver(email).collect { list ->
                 _bookings.value = list.map { container.bookingRepository.enrichBooking(it) }
             }
@@ -160,7 +163,8 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     fun loadBookingsForTutor(email: String) {
-        viewModelScope.launch {
+        bookingsJob?.cancel()
+        bookingsJob = viewModelScope.launch {
             container.bookingRepository.observeByTutor(email).collect { list ->
                 _bookings.value = list.map { container.bookingRepository.enrichBooking(it) }
             }
@@ -181,14 +185,18 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
         minute: Int,
         duration: Int,
         location: String,
-        childId: Long?,
+        childIds: List<Long>,
         notes: String,
         hourlyRate: Double
     ) {
         val tutor = userEmail ?: return
+        if (childIds.isEmpty()) {
+            _error.value = "Selecciona al menos un hijo/a"
+            return
+        }
         viewModelScope.launch {
             container.bookingRepository.createBooking(
-                tutor, caregiverEmail, date, hour, minute, duration, location, childId, notes, hourlyRate
+                tutor, caregiverEmail, date, hour, minute, duration, location, childIds, notes, hourlyRate
             )
             loadBookingsForTutor(tutor)
         }

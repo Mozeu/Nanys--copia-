@@ -51,6 +51,7 @@ data class Booking(
     val durationHours: Int,
     val location: String,
     val childId: Long?,
+    val childIds: List<Long> = emptyList(),
     val childName: String = "",
     val additionalNotes: String,
     val tutorNotes: String = "",

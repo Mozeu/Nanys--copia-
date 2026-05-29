@@ -96,10 +96,11 @@ class BookingRepository(
         startMinute: Int,
         durationHours: Int,
         location: String,
-        childId: Long?,
+        childIds: List<Long>,
         additionalNotes: String,
         hourlyRate: Double
     ): Long {
+        require(childIds.isNotEmpty()) { "Selecciona al menos un hijo/a" }
         val endHour = startHour + durationHours
         val timeSlot = String.format("%02d:%02d-%02d:%02d", startHour, startMinute, endHour, startMinute)
         val total = hourlyRate * durationHours
@@ -111,7 +112,8 @@ class BookingRepository(
                 timeSlot = timeSlot,
                 durationHours = durationHours,
                 location = location,
-                childId = childId,
+                childId = childIds.first(),
+                childIds = childIds.joinToString(","),
                 additionalNotes = additionalNotes,
                 totalPrice = total,
                 status = BookingStatus.PENDING.value,
@@ -160,12 +162,16 @@ class BookingRepository(
     suspend fun enrichBooking(booking: BookingEntity) = run {
         val tutor = db.userDao().getByEmail(booking.tutorEmail)
         val caregiver = db.userDao().getByEmail(booking.caregiverEmail)
-        val child = booking.childId?.let { db.childDao().getById(it) }
+        val selectedChildIds = booking.childIds.split(",")
+            .mapNotNull { it.toLongOrNull() }
+            .ifEmpty { booking.childId?.let { listOf(it) } ?: emptyList() }
+        val children = selectedChildIds.mapNotNull { db.childDao().getById(it) }
         val tutorProfile = db.tutorProfileDao().getByEmail(booking.tutorEmail)
         booking.toDomain(
             tutorName = tutor?.fullName ?: "",
             caregiverName = caregiver?.fullName ?: "",
-            childName = child?.name ?: "",
+            childName = children.joinToString(", ") { it.name },
+            childIdsParam = selectedChildIds,
             tutorNotes = tutorProfile?.notes ?: ""
         )
     }

@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -126,8 +124,8 @@ fun VisualCalendarSection(
         if (dayList.isEmpty()) {
             Text("Sin citas este día", color = MaterialTheme.colorScheme.onSurface.copy(0.5f))
         } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(dayList) { booking ->
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                dayList.forEach { booking ->
                     BookingCard(booking)
                 }
             }

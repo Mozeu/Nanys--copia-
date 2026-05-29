@@ -2,6 +2,8 @@ package com.nanys.care.core.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.nanys.care.core.notification.LocalNotificationHelper
 import com.nanys.care.core.notification.SimulationService
 import com.nanys.care.core.session.SessionManager
@@ -26,7 +28,9 @@ class AppContainer(context: Context) {
         context,
         NanysDatabase::class.java,
         "nanys_care.db"
-    ).build()
+    )
+        .addMigrations(MIGRATION_1_2)
+        .build()
 
     val authRepository = AuthRepository(database, sessionManager)
     val userRepository = UserRepository(database)
@@ -41,4 +45,13 @@ class AppContainer(context: Context) {
     val databaseSeeder = DatabaseSeeder(database)
 
     val db: NanysDatabase get() = database
+
+    private companion object {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE bookings ADD COLUMN childIds TEXT NOT NULL DEFAULT ''")
+                db.execSQL("UPDATE bookings SET childIds = CAST(childId AS TEXT) WHERE childId IS NOT NULL")
+            }
+        }
+    }
 }
