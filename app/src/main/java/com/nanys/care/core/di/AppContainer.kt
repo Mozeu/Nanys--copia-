@@ -1,0 +1,44 @@
+package com.nanys.care.core.di
+
+import android.content.Context
+import androidx.room.Room
+import com.nanys.care.core.notification.LocalNotificationHelper
+import com.nanys.care.core.notification.SimulationService
+import com.nanys.care.core.session.SessionManager
+import com.nanys.care.data.local.db.NanysDatabase
+import com.nanys.care.data.local.seed.DatabaseSeeder
+import com.nanys.care.data.repository.AuthRepository
+import com.nanys.care.data.repository.BookingRepository
+import com.nanys.care.data.repository.CaregiverRepository
+import com.nanys.care.data.repository.CatalogRepository
+import com.nanys.care.data.repository.ChatRepository
+import com.nanys.care.data.repository.PrivateNoteRepository
+import com.nanys.care.data.repository.ReviewRepository
+import com.nanys.care.data.repository.TutorRepository
+import com.nanys.care.data.repository.UserRepository
+
+class AppContainer(context: Context) {
+    val sessionManager = SessionManager(context)
+    val notificationHelper = LocalNotificationHelper(context)
+    val simulationService = SimulationService(context)
+
+    private val database: NanysDatabase = Room.databaseBuilder(
+        context,
+        NanysDatabase::class.java,
+        "nanys_care.db"
+    ).build()
+
+    val authRepository = AuthRepository(database, sessionManager)
+    val userRepository = UserRepository(database)
+    val bookingRepository = BookingRepository(context, database, simulationService, notificationHelper)
+    val caregiverRepository = CaregiverRepository(database)
+    val tutorRepository = TutorRepository(database)
+    val chatRepository = ChatRepository(database, simulationService)
+    val catalogRepository = CatalogRepository(database)
+    val reviewRepository = ReviewRepository(database)
+    val privateNoteRepository = PrivateNoteRepository(database)
+
+    val databaseSeeder = DatabaseSeeder(database)
+
+    val db: NanysDatabase get() = database
+}

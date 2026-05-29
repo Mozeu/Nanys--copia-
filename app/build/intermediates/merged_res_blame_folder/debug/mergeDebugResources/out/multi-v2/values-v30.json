@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.nanys.care.app-mergeDebugResources-63:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "/home/mozeu/.gradle/caches/8.13/transforms/baaddd287b7e63a9f617d946f6ca7246/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        }
+    ]
+}

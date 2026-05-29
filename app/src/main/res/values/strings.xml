@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nanys Care</string>
+    <string name="app_tagline">Conectando familias con cuidadores de confianza</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="register">Registrarse</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="profile">Mi perfil</string>
+    <string name="messages">Mensajes</string>
+    <string name="settings">Configuración</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="confirm">Confirmar</string>
+    <string name="search">Buscar</string>
+    <string name="agenda">Agenda</string>
+    <string name="dashboard">Inicio</string>
+    <string name="bookings">Reservas</string>
+    <string name="regulations_title">Reglamento y normas de conducta</string>
+    <string name="regulations_body">1. Respeto y trato digno\nToda interacción entre tutores y cuidadores debe ser respetuosa. No se tolera acoso, discriminación ni lenguaje ofensivo.\n\n2. Puntualidad y responsabilidad\nEl cuidador debe llegar a tiempo y cumplir con el horario acordado. El tutor debe proporcionar información veraz sobre el menor.\n\n3. Privacidad\nLa información de los menores y del hogar es confidencial. No compartir datos fuera de la plataforma sin autorización.\n\n4. Seguridad del menor\nPriorizar siempre el bienestar físico y emocional del niño. Reportar incidentes al supervisor.\n\n5. Comunicación\nUsar el chat de la aplicación para acuerdos relacionados con el servicio. Evitar compartir datos de pago externos.\n\n6. Cancelaciones\nNotificar con anticipación razonable cualquier cancelación o cambio de horario.\n\n7. Calificaciones honestas\nLas reseñas deben reflejar experiencias reales y constructivas.\n\n8. Cumplimiento legal\nEl cuidador debe contar con documentación válida según la normativa local. La verificación de antecedentes es responsabilidad del supervisor.\n\nÚltima actualización: Mayo 2026</string>
+</resources>
