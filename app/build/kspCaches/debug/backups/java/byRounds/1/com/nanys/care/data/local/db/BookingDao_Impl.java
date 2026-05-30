@@ -215,6 +215,91 @@ public final class BookingDao_Impl implements BookingDao {
   }
 
   @Override
+  public Object getAcceptedByCaregiverAndDate(final String caregiverEmail, final String date,
+      final long excludeId, final Continuation<? super List<BookingEntity>> $completion) {
+    final String _sql = "\n"
+            + "        SELECT * FROM bookings\n"
+            + "        WHERE caregiverEmail = ?\n"
+            + "          AND date = ?\n"
+            + "          AND status = 'accepted'\n"
+            + "          AND id != ?\n"
+            + "        ";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 3);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, caregiverEmail);
+    _argIndex = 2;
+    _statement.bindString(_argIndex, date);
+    _argIndex = 3;
+    _statement.bindLong(_argIndex, excludeId);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<BookingEntity>>() {
+      @Override
+      @NonNull
+      public List<BookingEntity> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfTutorEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "tutorEmail");
+          final int _cursorIndexOfCaregiverEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "caregiverEmail");
+          final int _cursorIndexOfDate = CursorUtil.getColumnIndexOrThrow(_cursor, "date");
+          final int _cursorIndexOfTimeSlot = CursorUtil.getColumnIndexOrThrow(_cursor, "timeSlot");
+          final int _cursorIndexOfDurationHours = CursorUtil.getColumnIndexOrThrow(_cursor, "durationHours");
+          final int _cursorIndexOfLocation = CursorUtil.getColumnIndexOrThrow(_cursor, "location");
+          final int _cursorIndexOfChildId = CursorUtil.getColumnIndexOrThrow(_cursor, "childId");
+          final int _cursorIndexOfChildIds = CursorUtil.getColumnIndexOrThrow(_cursor, "childIds");
+          final int _cursorIndexOfAdditionalNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "additionalNotes");
+          final int _cursorIndexOfTotalPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "totalPrice");
+          final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status");
+          final int _cursorIndexOfColorHex = CursorUtil.getColumnIndexOrThrow(_cursor, "colorHex");
+          final int _cursorIndexOfCreatedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "createdAt");
+          final List<BookingEntity> _result = new ArrayList<BookingEntity>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final BookingEntity _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpTutorEmail;
+            _tmpTutorEmail = _cursor.getString(_cursorIndexOfTutorEmail);
+            final String _tmpCaregiverEmail;
+            _tmpCaregiverEmail = _cursor.getString(_cursorIndexOfCaregiverEmail);
+            final String _tmpDate;
+            _tmpDate = _cursor.getString(_cursorIndexOfDate);
+            final String _tmpTimeSlot;
+            _tmpTimeSlot = _cursor.getString(_cursorIndexOfTimeSlot);
+            final int _tmpDurationHours;
+            _tmpDurationHours = _cursor.getInt(_cursorIndexOfDurationHours);
+            final String _tmpLocation;
+            _tmpLocation = _cursor.getString(_cursorIndexOfLocation);
+            final Long _tmpChildId;
+            if (_cursor.isNull(_cursorIndexOfChildId)) {
+              _tmpChildId = null;
+            } else {
+              _tmpChildId = _cursor.getLong(_cursorIndexOfChildId);
+            }
+            final String _tmpChildIds;
+            _tmpChildIds = _cursor.getString(_cursorIndexOfChildIds);
+            final String _tmpAdditionalNotes;
+            _tmpAdditionalNotes = _cursor.getString(_cursorIndexOfAdditionalNotes);
+            final double _tmpTotalPrice;
+            _tmpTotalPrice = _cursor.getDouble(_cursorIndexOfTotalPrice);
+            final String _tmpStatus;
+            _tmpStatus = _cursor.getString(_cursorIndexOfStatus);
+            final String _tmpColorHex;
+            _tmpColorHex = _cursor.getString(_cursorIndexOfColorHex);
+            final long _tmpCreatedAt;
+            _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
+            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpChildIds,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
   public Flow<List<BookingEntity>> observeByCaregiver(final String email) {
     final String _sql = "SELECT * FROM bookings WHERE caregiverEmail = ? ORDER BY date ASC, timeSlot ASC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);

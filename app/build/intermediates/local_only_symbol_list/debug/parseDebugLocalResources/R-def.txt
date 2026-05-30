@@ -8,6 +8,7 @@ color secondary
 color surface
 color tertiary
 drawable ic_default_avatar
+drawable ic_launcher_baby
 mipmap ic_launcher
 mipmap ic_launcher_round
 string agenda

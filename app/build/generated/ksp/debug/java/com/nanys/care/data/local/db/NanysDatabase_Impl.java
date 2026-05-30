@@ -48,7 +48,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(3) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(4) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `users` (`email` TEXT NOT NULL, `passwordHash` TEXT NOT NULL, `role` TEXT NOT NULL, `fullName` TEXT NOT NULL, `phone` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`email`))");
@@ -56,7 +56,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_caregiver_profiles_city` ON `caregiver_profiles` (`city`)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_caregiver_profiles_state` ON `caregiver_profiles` (`state`)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_caregiver_profiles_hourlyRate` ON `caregiver_profiles` (`hourlyRate`)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `tutor_profiles` (`email` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `notes` TEXT NOT NULL, `preferences` TEXT NOT NULL, PRIMARY KEY(`email`), FOREIGN KEY(`email`) REFERENCES `users`(`email`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `tutor_profiles` (`email` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `notes` TEXT NOT NULL, `preferences` TEXT NOT NULL, `photoUri` TEXT NOT NULL, PRIMARY KEY(`email`), FOREIGN KEY(`email`) REFERENCES `users`(`email`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE TABLE IF NOT EXISTS `children` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tutorEmail` TEXT NOT NULL, `name` TEXT NOT NULL, `age` INTEGER NOT NULL, `specialNeeds` TEXT NOT NULL, FOREIGN KEY(`tutorEmail`) REFERENCES `tutor_profiles`(`email`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_children_tutorEmail` ON `children` (`tutorEmail`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `bookings` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tutorEmail` TEXT NOT NULL, `caregiverEmail` TEXT NOT NULL, `date` TEXT NOT NULL, `timeSlot` TEXT NOT NULL, `durationHours` INTEGER NOT NULL, `location` TEXT NOT NULL, `childId` INTEGER, `childIds` TEXT NOT NULL DEFAULT '', `additionalNotes` TEXT NOT NULL, `totalPrice` REAL NOT NULL, `status` TEXT NOT NULL, `colorHex` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)");
@@ -77,7 +77,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `catalog_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `category` TEXT NOT NULL, `name` TEXT NOT NULL, `value` TEXT NOT NULL, `extra` TEXT NOT NULL)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_catalog_items_category` ON `catalog_items` (`category`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7944be571dfca8bdad07378eeeb80513')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '264c62fac184ca3bde082c20ef3bd5aa')");
       }
 
       @Override
@@ -178,12 +178,13 @@ public final class NanysDatabase_Impl extends NanysDatabase {
                   + " Expected:\n" + _infoCaregiverProfiles + "\n"
                   + " Found:\n" + _existingCaregiverProfiles);
         }
-        final HashMap<String, TableInfo.Column> _columnsTutorProfiles = new HashMap<String, TableInfo.Column>(5);
+        final HashMap<String, TableInfo.Column> _columnsTutorProfiles = new HashMap<String, TableInfo.Column>(6);
         _columnsTutorProfiles.put("email", new TableInfo.Column("email", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTutorProfiles.put("city", new TableInfo.Column("city", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTutorProfiles.put("state", new TableInfo.Column("state", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTutorProfiles.put("notes", new TableInfo.Column("notes", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTutorProfiles.put("preferences", new TableInfo.Column("preferences", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTutorProfiles.put("photoUri", new TableInfo.Column("photoUri", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysTutorProfiles = new HashSet<TableInfo.ForeignKey>(1);
         _foreignKeysTutorProfiles.add(new TableInfo.ForeignKey("users", "CASCADE", "NO ACTION", Arrays.asList("email"), Arrays.asList("email")));
         final HashSet<TableInfo.Index> _indicesTutorProfiles = new HashSet<TableInfo.Index>(0);
@@ -313,7 +314,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "7944be571dfca8bdad07378eeeb80513", "b40113874afcbd148f17dedcbab91224");
+    }, "264c62fac184ca3bde082c20ef3bd5aa", "3443154f403c63cdcd58a7bd2180af7b");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

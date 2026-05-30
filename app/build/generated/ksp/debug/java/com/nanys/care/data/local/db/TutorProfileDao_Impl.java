@@ -42,7 +42,7 @@ public final class TutorProfileDao_Impl implements TutorProfileDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `tutor_profiles` (`email`,`city`,`state`,`notes`,`preferences`) VALUES (?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `tutor_profiles` (`email`,`city`,`state`,`notes`,`preferences`,`photoUri`) VALUES (?,?,?,?,?,?)";
       }
 
       @Override
@@ -53,13 +53,14 @@ public final class TutorProfileDao_Impl implements TutorProfileDao {
         statement.bindString(3, entity.getState());
         statement.bindString(4, entity.getNotes());
         statement.bindString(5, entity.getPreferences());
+        statement.bindString(6, entity.getPhotoUri());
       }
     };
     this.__updateAdapterOfTutorProfileEntity = new EntityDeletionOrUpdateAdapter<TutorProfileEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `tutor_profiles` SET `email` = ?,`city` = ?,`state` = ?,`notes` = ?,`preferences` = ? WHERE `email` = ?";
+        return "UPDATE OR ABORT `tutor_profiles` SET `email` = ?,`city` = ?,`state` = ?,`notes` = ?,`preferences` = ?,`photoUri` = ? WHERE `email` = ?";
       }
 
       @Override
@@ -70,7 +71,8 @@ public final class TutorProfileDao_Impl implements TutorProfileDao {
         statement.bindString(3, entity.getState());
         statement.bindString(4, entity.getNotes());
         statement.bindString(5, entity.getPreferences());
-        statement.bindString(6, entity.getEmail());
+        statement.bindString(6, entity.getPhotoUri());
+        statement.bindString(7, entity.getEmail());
       }
     };
   }
@@ -132,6 +134,7 @@ public final class TutorProfileDao_Impl implements TutorProfileDao {
           final int _cursorIndexOfState = CursorUtil.getColumnIndexOrThrow(_cursor, "state");
           final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
           final int _cursorIndexOfPreferences = CursorUtil.getColumnIndexOrThrow(_cursor, "preferences");
+          final int _cursorIndexOfPhotoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "photoUri");
           final TutorProfileEntity _result;
           if (_cursor.moveToFirst()) {
             final String _tmpEmail;
@@ -144,7 +147,9 @@ public final class TutorProfileDao_Impl implements TutorProfileDao {
             _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
             final String _tmpPreferences;
             _tmpPreferences = _cursor.getString(_cursorIndexOfPreferences);
-            _result = new TutorProfileEntity(_tmpEmail,_tmpCity,_tmpState,_tmpNotes,_tmpPreferences);
+            final String _tmpPhotoUri;
+            _tmpPhotoUri = _cursor.getString(_cursorIndexOfPhotoUri);
+            _result = new TutorProfileEntity(_tmpEmail,_tmpCity,_tmpState,_tmpNotes,_tmpPreferences,_tmpPhotoUri);
           } else {
             _result = null;
           }
@@ -174,6 +179,7 @@ public final class TutorProfileDao_Impl implements TutorProfileDao {
           final int _cursorIndexOfState = CursorUtil.getColumnIndexOrThrow(_cursor, "state");
           final int _cursorIndexOfNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "notes");
           final int _cursorIndexOfPreferences = CursorUtil.getColumnIndexOrThrow(_cursor, "preferences");
+          final int _cursorIndexOfPhotoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "photoUri");
           final TutorProfileEntity _result;
           if (_cursor.moveToFirst()) {
             final String _tmpEmail;
@@ -186,7 +192,9 @@ public final class TutorProfileDao_Impl implements TutorProfileDao {
             _tmpNotes = _cursor.getString(_cursorIndexOfNotes);
             final String _tmpPreferences;
             _tmpPreferences = _cursor.getString(_cursorIndexOfPreferences);
-            _result = new TutorProfileEntity(_tmpEmail,_tmpCity,_tmpState,_tmpNotes,_tmpPreferences);
+            final String _tmpPhotoUri;
+            _tmpPhotoUri = _cursor.getString(_cursorIndexOfPhotoUri);
+            _result = new TutorProfileEntity(_tmpEmail,_tmpCity,_tmpState,_tmpNotes,_tmpPreferences,_tmpPhotoUri);
           } else {
             _result = null;
           }
