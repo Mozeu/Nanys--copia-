@@ -45,7 +45,7 @@ public final class BookingDao_Impl implements BookingDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `bookings` (`id`,`tutorEmail`,`caregiverEmail`,`date`,`timeSlot`,`durationHours`,`location`,`childId`,`additionalNotes`,`totalPrice`,`status`,`colorHex`,`createdAt`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `bookings` (`id`,`tutorEmail`,`caregiverEmail`,`date`,`timeSlot`,`durationHours`,`location`,`childId`,`childIds`,`additionalNotes`,`totalPrice`,`status`,`colorHex`,`createdAt`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -63,18 +63,19 @@ public final class BookingDao_Impl implements BookingDao {
         } else {
           statement.bindLong(8, entity.getChildId());
         }
-        statement.bindString(9, entity.getAdditionalNotes());
-        statement.bindDouble(10, entity.getTotalPrice());
-        statement.bindString(11, entity.getStatus());
-        statement.bindString(12, entity.getColorHex());
-        statement.bindLong(13, entity.getCreatedAt());
+        statement.bindString(9, entity.getChildIds());
+        statement.bindString(10, entity.getAdditionalNotes());
+        statement.bindDouble(11, entity.getTotalPrice());
+        statement.bindString(12, entity.getStatus());
+        statement.bindString(13, entity.getColorHex());
+        statement.bindLong(14, entity.getCreatedAt());
       }
     };
     this.__updateAdapterOfBookingEntity = new EntityDeletionOrUpdateAdapter<BookingEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `bookings` SET `id` = ?,`tutorEmail` = ?,`caregiverEmail` = ?,`date` = ?,`timeSlot` = ?,`durationHours` = ?,`location` = ?,`childId` = ?,`additionalNotes` = ?,`totalPrice` = ?,`status` = ?,`colorHex` = ?,`createdAt` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `bookings` SET `id` = ?,`tutorEmail` = ?,`caregiverEmail` = ?,`date` = ?,`timeSlot` = ?,`durationHours` = ?,`location` = ?,`childId` = ?,`childIds` = ?,`additionalNotes` = ?,`totalPrice` = ?,`status` = ?,`colorHex` = ?,`createdAt` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -92,12 +93,13 @@ public final class BookingDao_Impl implements BookingDao {
         } else {
           statement.bindLong(8, entity.getChildId());
         }
-        statement.bindString(9, entity.getAdditionalNotes());
-        statement.bindDouble(10, entity.getTotalPrice());
-        statement.bindString(11, entity.getStatus());
-        statement.bindString(12, entity.getColorHex());
-        statement.bindLong(13, entity.getCreatedAt());
-        statement.bindLong(14, entity.getId());
+        statement.bindString(9, entity.getChildIds());
+        statement.bindString(10, entity.getAdditionalNotes());
+        statement.bindDouble(11, entity.getTotalPrice());
+        statement.bindString(12, entity.getStatus());
+        statement.bindString(13, entity.getColorHex());
+        statement.bindLong(14, entity.getCreatedAt());
+        statement.bindLong(15, entity.getId());
       }
     };
   }
@@ -159,6 +161,7 @@ public final class BookingDao_Impl implements BookingDao {
           final int _cursorIndexOfDurationHours = CursorUtil.getColumnIndexOrThrow(_cursor, "durationHours");
           final int _cursorIndexOfLocation = CursorUtil.getColumnIndexOrThrow(_cursor, "location");
           final int _cursorIndexOfChildId = CursorUtil.getColumnIndexOrThrow(_cursor, "childId");
+          final int _cursorIndexOfChildIds = CursorUtil.getColumnIndexOrThrow(_cursor, "childIds");
           final int _cursorIndexOfAdditionalNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "additionalNotes");
           final int _cursorIndexOfTotalPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "totalPrice");
           final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status");
@@ -186,6 +189,8 @@ public final class BookingDao_Impl implements BookingDao {
             } else {
               _tmpChildId = _cursor.getLong(_cursorIndexOfChildId);
             }
+            final String _tmpChildIds;
+            _tmpChildIds = _cursor.getString(_cursorIndexOfChildIds);
             final String _tmpAdditionalNotes;
             _tmpAdditionalNotes = _cursor.getString(_cursorIndexOfAdditionalNotes);
             final double _tmpTotalPrice;
@@ -196,7 +201,7 @@ public final class BookingDao_Impl implements BookingDao {
             _tmpColorHex = _cursor.getString(_cursorIndexOfColorHex);
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _result = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
+            _result = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpChildIds,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
           } else {
             _result = null;
           }
@@ -229,6 +234,7 @@ public final class BookingDao_Impl implements BookingDao {
           final int _cursorIndexOfDurationHours = CursorUtil.getColumnIndexOrThrow(_cursor, "durationHours");
           final int _cursorIndexOfLocation = CursorUtil.getColumnIndexOrThrow(_cursor, "location");
           final int _cursorIndexOfChildId = CursorUtil.getColumnIndexOrThrow(_cursor, "childId");
+          final int _cursorIndexOfChildIds = CursorUtil.getColumnIndexOrThrow(_cursor, "childIds");
           final int _cursorIndexOfAdditionalNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "additionalNotes");
           final int _cursorIndexOfTotalPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "totalPrice");
           final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status");
@@ -257,6 +263,8 @@ public final class BookingDao_Impl implements BookingDao {
             } else {
               _tmpChildId = _cursor.getLong(_cursorIndexOfChildId);
             }
+            final String _tmpChildIds;
+            _tmpChildIds = _cursor.getString(_cursorIndexOfChildIds);
             final String _tmpAdditionalNotes;
             _tmpAdditionalNotes = _cursor.getString(_cursorIndexOfAdditionalNotes);
             final double _tmpTotalPrice;
@@ -267,7 +275,7 @@ public final class BookingDao_Impl implements BookingDao {
             _tmpColorHex = _cursor.getString(_cursorIndexOfColorHex);
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
+            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpChildIds,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
             _result.add(_item);
           }
           return _result;
@@ -303,6 +311,7 @@ public final class BookingDao_Impl implements BookingDao {
           final int _cursorIndexOfDurationHours = CursorUtil.getColumnIndexOrThrow(_cursor, "durationHours");
           final int _cursorIndexOfLocation = CursorUtil.getColumnIndexOrThrow(_cursor, "location");
           final int _cursorIndexOfChildId = CursorUtil.getColumnIndexOrThrow(_cursor, "childId");
+          final int _cursorIndexOfChildIds = CursorUtil.getColumnIndexOrThrow(_cursor, "childIds");
           final int _cursorIndexOfAdditionalNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "additionalNotes");
           final int _cursorIndexOfTotalPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "totalPrice");
           final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status");
@@ -331,6 +340,8 @@ public final class BookingDao_Impl implements BookingDao {
             } else {
               _tmpChildId = _cursor.getLong(_cursorIndexOfChildId);
             }
+            final String _tmpChildIds;
+            _tmpChildIds = _cursor.getString(_cursorIndexOfChildIds);
             final String _tmpAdditionalNotes;
             _tmpAdditionalNotes = _cursor.getString(_cursorIndexOfAdditionalNotes);
             final double _tmpTotalPrice;
@@ -341,7 +352,7 @@ public final class BookingDao_Impl implements BookingDao {
             _tmpColorHex = _cursor.getString(_cursorIndexOfColorHex);
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
+            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpChildIds,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
             _result.add(_item);
           }
           return _result;
@@ -380,6 +391,7 @@ public final class BookingDao_Impl implements BookingDao {
           final int _cursorIndexOfDurationHours = CursorUtil.getColumnIndexOrThrow(_cursor, "durationHours");
           final int _cursorIndexOfLocation = CursorUtil.getColumnIndexOrThrow(_cursor, "location");
           final int _cursorIndexOfChildId = CursorUtil.getColumnIndexOrThrow(_cursor, "childId");
+          final int _cursorIndexOfChildIds = CursorUtil.getColumnIndexOrThrow(_cursor, "childIds");
           final int _cursorIndexOfAdditionalNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "additionalNotes");
           final int _cursorIndexOfTotalPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "totalPrice");
           final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status");
@@ -408,6 +420,8 @@ public final class BookingDao_Impl implements BookingDao {
             } else {
               _tmpChildId = _cursor.getLong(_cursorIndexOfChildId);
             }
+            final String _tmpChildIds;
+            _tmpChildIds = _cursor.getString(_cursorIndexOfChildIds);
             final String _tmpAdditionalNotes;
             _tmpAdditionalNotes = _cursor.getString(_cursorIndexOfAdditionalNotes);
             final double _tmpTotalPrice;
@@ -418,7 +432,7 @@ public final class BookingDao_Impl implements BookingDao {
             _tmpColorHex = _cursor.getString(_cursorIndexOfColorHex);
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
+            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpChildIds,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
             _result.add(_item);
           }
           return _result;
@@ -457,6 +471,7 @@ public final class BookingDao_Impl implements BookingDao {
           final int _cursorIndexOfDurationHours = CursorUtil.getColumnIndexOrThrow(_cursor, "durationHours");
           final int _cursorIndexOfLocation = CursorUtil.getColumnIndexOrThrow(_cursor, "location");
           final int _cursorIndexOfChildId = CursorUtil.getColumnIndexOrThrow(_cursor, "childId");
+          final int _cursorIndexOfChildIds = CursorUtil.getColumnIndexOrThrow(_cursor, "childIds");
           final int _cursorIndexOfAdditionalNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "additionalNotes");
           final int _cursorIndexOfTotalPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "totalPrice");
           final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status");
@@ -485,6 +500,8 @@ public final class BookingDao_Impl implements BookingDao {
             } else {
               _tmpChildId = _cursor.getLong(_cursorIndexOfChildId);
             }
+            final String _tmpChildIds;
+            _tmpChildIds = _cursor.getString(_cursorIndexOfChildIds);
             final String _tmpAdditionalNotes;
             _tmpAdditionalNotes = _cursor.getString(_cursorIndexOfAdditionalNotes);
             final double _tmpTotalPrice;
@@ -495,7 +512,7 @@ public final class BookingDao_Impl implements BookingDao {
             _tmpColorHex = _cursor.getString(_cursorIndexOfColorHex);
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
+            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpChildIds,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
             _result.add(_item);
           }
           return _result;
@@ -604,6 +621,7 @@ public final class BookingDao_Impl implements BookingDao {
           final int _cursorIndexOfDurationHours = CursorUtil.getColumnIndexOrThrow(_cursor, "durationHours");
           final int _cursorIndexOfLocation = CursorUtil.getColumnIndexOrThrow(_cursor, "location");
           final int _cursorIndexOfChildId = CursorUtil.getColumnIndexOrThrow(_cursor, "childId");
+          final int _cursorIndexOfChildIds = CursorUtil.getColumnIndexOrThrow(_cursor, "childIds");
           final int _cursorIndexOfAdditionalNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "additionalNotes");
           final int _cursorIndexOfTotalPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "totalPrice");
           final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status");
@@ -632,6 +650,8 @@ public final class BookingDao_Impl implements BookingDao {
             } else {
               _tmpChildId = _cursor.getLong(_cursorIndexOfChildId);
             }
+            final String _tmpChildIds;
+            _tmpChildIds = _cursor.getString(_cursorIndexOfChildIds);
             final String _tmpAdditionalNotes;
             _tmpAdditionalNotes = _cursor.getString(_cursorIndexOfAdditionalNotes);
             final double _tmpTotalPrice;
@@ -642,7 +662,7 @@ public final class BookingDao_Impl implements BookingDao {
             _tmpColorHex = _cursor.getString(_cursorIndexOfColorHex);
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
+            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpChildIds,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
             _result.add(_item);
           }
           return _result;
@@ -676,6 +696,7 @@ public final class BookingDao_Impl implements BookingDao {
           final int _cursorIndexOfDurationHours = CursorUtil.getColumnIndexOrThrow(_cursor, "durationHours");
           final int _cursorIndexOfLocation = CursorUtil.getColumnIndexOrThrow(_cursor, "location");
           final int _cursorIndexOfChildId = CursorUtil.getColumnIndexOrThrow(_cursor, "childId");
+          final int _cursorIndexOfChildIds = CursorUtil.getColumnIndexOrThrow(_cursor, "childIds");
           final int _cursorIndexOfAdditionalNotes = CursorUtil.getColumnIndexOrThrow(_cursor, "additionalNotes");
           final int _cursorIndexOfTotalPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "totalPrice");
           final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status");
@@ -704,6 +725,8 @@ public final class BookingDao_Impl implements BookingDao {
             } else {
               _tmpChildId = _cursor.getLong(_cursorIndexOfChildId);
             }
+            final String _tmpChildIds;
+            _tmpChildIds = _cursor.getString(_cursorIndexOfChildIds);
             final String _tmpAdditionalNotes;
             _tmpAdditionalNotes = _cursor.getString(_cursorIndexOfAdditionalNotes);
             final double _tmpTotalPrice;
@@ -714,7 +737,7 @@ public final class BookingDao_Impl implements BookingDao {
             _tmpColorHex = _cursor.getString(_cursorIndexOfColorHex);
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
+            _item = new BookingEntity(_tmpId,_tmpTutorEmail,_tmpCaregiverEmail,_tmpDate,_tmpTimeSlot,_tmpDurationHours,_tmpLocation,_tmpChildId,_tmpChildIds,_tmpAdditionalNotes,_tmpTotalPrice,_tmpStatus,_tmpColorHex,_tmpCreatedAt);
             _result.add(_item);
           }
           return _result;

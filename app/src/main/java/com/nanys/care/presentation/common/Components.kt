@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -39,6 +40,16 @@ fun NanysScaffold(
         topBar = {
             TopAppBar(
                 title = { Text(title, fontWeight = FontWeight.SemiBold) },
+                navigationIcon = {
+                    if (!showProfileMenu) {
+                        IconButton(onClick = onLogout) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Salir de pestaña"
+                            )
+                        }
+                    }
+                },
                 actions = {
                     if (showProfileMenu) {
                         Box {
@@ -80,6 +91,7 @@ fun NanysScaffold(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
                     actionIconContentColor = Color.White
                 )
             )
@@ -87,6 +99,13 @@ fun NanysScaffold(
         bottomBar = bottomBar,
         containerColor = MaterialTheme.colorScheme.background
     ) { padding -> content(padding) }
+}
+
+@Composable
+fun ButtonIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+    Spacer(Modifier.width(8.dp))
+    Text(text)
 }
 
 @Composable

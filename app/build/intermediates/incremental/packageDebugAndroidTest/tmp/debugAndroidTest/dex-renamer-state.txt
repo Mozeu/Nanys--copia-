@@ -1,0 +1,4 @@
+#Fri May 29 17:41:40 CST 2026
+base.0=/home/mozeu/Descargas/Nanys (copia)/app/build/intermediates/dex/debugAndroidTest/mergeProjectDexDebugAndroidTest/0/classes.dex
+path.0=0/classes.dex
+renamed.0=classes.dex

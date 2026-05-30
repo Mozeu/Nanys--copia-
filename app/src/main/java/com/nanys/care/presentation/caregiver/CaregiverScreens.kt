@@ -86,8 +86,12 @@ fun CaregiverRequestsScreen(viewModel: NanysViewModel, onBack: () -> Unit, onVie
             items(pending) { booking ->
                 BookingCard(booking, onClick = { onViewTutor(booking.tutorEmail) })
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { viewModel.respondBooking(booking.id, true) }) { Text("Aceptar") }
-                    OutlinedButton(onClick = { viewModel.respondBooking(booking.id, false) }) { Text("Rechazar") }
+                    Button(onClick = { viewModel.respondBooking(booking.id, true) }) {
+                        ButtonIcon(Icons.Default.Check, "Aceptar")
+                    }
+                    OutlinedButton(onClick = { viewModel.respondBooking(booking.id, false) }) {
+                        ButtonIcon(Icons.Default.Close, "Rechazar")
+                    }
                 }
                 Spacer(Modifier.height(12.dp))
             }
@@ -106,7 +110,11 @@ fun CaregiverAgendaScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
 }
 
 @Composable
-fun CaregiverProfileScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
+fun CaregiverProfileScreen(
+    viewModel: NanysViewModel,
+    onBack: () -> Unit,
+    onSaved: () -> Unit = onBack
+) {
     val email = viewModel.userEmail ?: return
     var experience by remember { mutableIntStateOf(0) }
     var certs by remember { mutableStateOf("") }
@@ -147,11 +155,14 @@ fun CaregiverProfileScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
             Button(
                 onClick = {
                     viewModel.updateCaregiverProfile(
-                        CaregiverProfileEntity(email, experienceYears = experience, certifications = certs, availability = availability, hourlyRate = rate.toDoubleOrNull() ?: 0.0, city = city, state = state, verified = profile?.verified ?: false)
+                        CaregiverProfileEntity(email, experienceYears = experience, certifications = certs, availability = availability, hourlyRate = rate.toDoubleOrNull() ?: 0.0, city = city, state = state, verified = profile?.verified ?: false),
+                        onDone = onSaved
                     )
                 },
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
-            ) { Text("Guardar perfil") }
+            ) {
+                ButtonIcon(Icons.Default.Save, "Guardar perfil")
+            }
         }
     }
 }
@@ -182,7 +193,9 @@ fun PrivateNotesScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
             OutlinedTextField(noteText, { noteText = it }, label = { Text("Nota") }, modifier = Modifier.fillMaxWidth())
             Text("Calificación privada: $rating")
             Slider(rating.toFloat(), { rating = it.toInt() }, valueRange = 1f..5f, steps = 3)
-            Button(onClick = { viewModel.addPrivateNote(tutorEmail, noteText, rating) }) { Text("Guardar nota") }
+            Button(onClick = { viewModel.addPrivateNote(tutorEmail, noteText, rating) }) {
+                ButtonIcon(Icons.Default.Save, "Guardar nota")
+            }
             Spacer(Modifier.height(16.dp))
             notes.forEach { n ->
                 Card(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {

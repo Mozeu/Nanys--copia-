@@ -271,17 +271,19 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
         }
     }
 
-    fun updateCaregiverProfile(profile: CaregiverProfileEntity) {
+    fun updateCaregiverProfile(profile: CaregiverProfileEntity, onDone: () -> Unit = {}) {
         viewModelScope.launch {
             container.caregiverRepository.updateProfile(profile)
             userEmail?.let { loadCaregiverPublic(it) }
+            onDone()
         }
     }
 
-    fun updateTutorProfile(profile: TutorProfileEntity) {
+    fun updateTutorProfile(profile: TutorProfileEntity, onDone: () -> Unit = {}) {
         viewModelScope.launch {
             container.tutorRepository.saveProfile(profile)
             userEmail?.let { loadTutorPrivate(it) }
+            onDone()
         }
     }
 

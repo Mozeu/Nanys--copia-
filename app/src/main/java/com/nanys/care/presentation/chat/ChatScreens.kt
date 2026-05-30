@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.nanys.care.core.util.DateUtil
 import com.nanys.care.domain.model.ConversationSummary
 import com.nanys.care.domain.model.Message
+import com.nanys.care.presentation.common.ButtonIcon
 import com.nanys.care.presentation.common.NanysScaffold
 import com.nanys.care.presentation.viewmodel.NanysViewModel
 
@@ -38,7 +40,7 @@ fun ChatListScreen(
     }
     NanysScaffold(
         title = if (readOnly) "Todas las conversaciones" else "Mensajes",
-        showProfileMenu = !readOnly,
+        showProfileMenu = false,
         onLogout = onBack
     ) { padding ->
         if (conversations.isEmpty()) {
@@ -48,7 +50,7 @@ fun ChatListScreen(
         } else {
             LazyColumn(Modifier.padding(padding)) {
                 items(conversations) { conv ->
-                    ConversationItem(conv, onClick = { if (!readOnly) onOpenChat(conv.otherEmail) })
+                    ConversationItem(conv, onClick = { onOpenChat(conv.otherEmail) })
                 }
             }
         }
@@ -104,9 +106,20 @@ fun ChatDetailScreen(
                 },
                 actions = {
                     if (!readOnly) {
-                        TextButton(onClick = { onOpenProfile(otherEmail) }) { Text("Perfil") }
+                        TextButton(
+                            onClick = { onOpenProfile(otherEmail) },
+                            colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
+                        ) {
+                            ButtonIcon(Icons.Default.Person, "Perfil")
+                        }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                )
             )
         }
     ) { padding ->

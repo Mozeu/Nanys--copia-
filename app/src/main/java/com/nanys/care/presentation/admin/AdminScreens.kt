@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nanys.care.domain.model.CatalogItem
+import com.nanys.care.presentation.common.ButtonIcon
 import com.nanys.care.presentation.common.NanysScaffold
 import com.nanys.care.presentation.common.StatCard
 import com.nanys.care.presentation.viewmodel.NanysViewModel
@@ -38,9 +40,15 @@ fun AdminDashboardScreen(viewModel: NanysViewModel, onNavigate: (String) -> Unit
 
 @Composable
 private fun CatalogNavButton(label: String, category: String, onNavigate: (String) -> Unit) {
+    val icon = when (category) {
+        "experience" -> Icons.Default.Work
+        "certification" -> Icons.Default.School
+        "city", "state" -> Icons.Default.Place
+        else -> Icons.AutoMirrored.Filled.List
+    }
     Card(onClick = { onNavigate("admin_catalog/$category") }, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = RoundedCornerShape(12.dp)) {
         Row(Modifier.padding(16.dp)) {
-            Icon(Icons.Default.List, null, tint = MaterialTheme.colorScheme.primary)
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(12.dp))
             Text(label, fontWeight = FontWeight.Medium)
         }
@@ -61,15 +69,23 @@ fun CatalogManagementScreen(viewModel: NanysViewModel, category: String, onBack:
             title = { Text("Agregar registro") },
             text = { OutlinedTextField(newName, { newName = it }, label = { Text("Nombre") }) },
             confirmButton = {
-                TextButton(onClick = { viewModel.addCatalogItem(category, newName); newName = ""; showDialog = false }) { Text("Agregar") }
+                TextButton(onClick = { viewModel.addCatalogItem(category, newName); newName = ""; showDialog = false }) {
+                    ButtonIcon(Icons.Default.Add, "Agregar")
+                }
             },
-            dismissButton = { TextButton(onClick = { showDialog = false }) { Text("Cancelar") } }
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    ButtonIcon(Icons.Default.Close, "Cancelar")
+                }
+            }
         )
     }
 
     NanysScaffold(title = "Catálogo: $category", onLogout = onBack, showProfileMenu = false) { padding ->
         Column(Modifier.padding(padding)) {
-            Button(onClick = { showDialog = true }, modifier = Modifier.padding(16.dp)) { Text("Agregar") }
+            Button(onClick = { showDialog = true }, modifier = Modifier.padding(16.dp)) {
+                ButtonIcon(Icons.Default.Add, "Agregar")
+            }
             LazyColumn(Modifier.padding(horizontal = 16.dp)) {
                 items(items) { item ->
                     CatalogItemRow(item, onDelete = { viewModel.deleteCatalogItem(item) })

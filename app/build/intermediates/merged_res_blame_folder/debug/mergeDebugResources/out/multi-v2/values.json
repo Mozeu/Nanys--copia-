@@ -112,20 +112,20 @@
                     }
                 },
                 {
-                    "source": "/home/mozeu/Descargas/Nanys/app/src/main/res/values/colors.xml",
+                    "source": "/home/mozeu/Descargas/Nanys (copia)/app/src/main/res/values/strings.xml",
                     "from": {
-                        "startLines": "5,8,7,2,3,6,4",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "184,316,271,55,97,229,141",
-                        "endColumns": "44,39,44,41,43,41,42",
-                        "endOffsets": "224,351,311,92,136,266,179"
+                        "startLines": "16,2,3,18,13,14,17,6,4,8,10,7,9,5,20,19,12,15,11",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "755,55,103,842,623,667,797,289,191,390,485,342,439,240,966,888,582,713,531",
+                        "endColumns": "41,47,87,45,43,45,44,52,48,48,45,47,45,48,1151,77,40,41,50",
+                        "endOffsets": "792,98,186,883,662,708,837,337,235,434,526,385,480,284,2113,961,618,750,577"
                     },
                     "to": {
-                        "startLines": "9,12,15,16,17,18,19",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "630,806,978,1023,1065,1109,1151",
-                        "endColumns": "44,39,44,41,43,41,42",
-                        "endOffsets": "670,841,1018,1060,1104,1146,1189"
+                        "startLines": "113,115,116,117,125,128,129,133,136,137,199,202,203,206,207,208,209,210,212",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "6740,6865,6913,7001,7558,7721,7767,8037,8202,8251,12741,12903,12951,13101,13150,14302,14380,14421,14509",
+                        "endColumns": "41,47,87,45,43,45,44,52,48,48,45,47,45,48,1151,77,40,41,50",
+                        "endOffsets": "6777,6908,6996,7042,7597,7762,7807,8085,8246,8295,12782,12946,12992,13145,14297,14375,14416,14458,14555"
                     }
                 },
                 {
@@ -199,39 +199,20 @@
                     }
                 },
                 {
-                    "source": "/home/mozeu/Descargas/Nanys/app/src/main/res/values/themes.xml",
+                    "source": "/home/mozeu/Descargas/Nanys (copia)/app/src/main/res/values/colors.xml",
                     "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endLines": "5",
-                        "endColumns": "12",
-                        "endOffsets": "287"
+                        "startLines": "5,8,7,2,3,6,4",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "184,316,271,55,97,229,141",
+                        "endColumns": "44,39,44,41,43,41,42",
+                        "endOffsets": "224,351,311,92,136,266,179"
                     },
                     "to": {
-                        "startLines": "256",
-                        "startColumns": "4",
-                        "startOffsets": "17087",
-                        "endLines": "259",
-                        "endColumns": "12",
-                        "endOffsets": "17319"
-                    }
-                },
-                {
-                    "source": "/home/mozeu/Descargas/Nanys/app/src/main/res/values/strings.xml",
-                    "from": {
-                        "startLines": "16,2,3,18,13,14,17,6,4,8,10,7,9,5,20,19,12,15,11",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "755,55,103,842,623,667,797,289,191,390,485,342,439,240,966,888,582,713,531",
-                        "endColumns": "41,47,87,45,43,45,44,52,48,48,45,47,45,48,1151,77,40,41,50",
-                        "endOffsets": "792,98,186,883,662,708,837,337,235,434,526,385,480,284,2113,961,618,750,577"
-                    },
-                    "to": {
-                        "startLines": "113,115,116,117,125,128,129,133,136,137,199,202,203,206,207,208,209,210,212",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "6740,6865,6913,7001,7558,7721,7767,8037,8202,8251,12741,12903,12951,13101,13150,14302,14380,14421,14509",
-                        "endColumns": "41,47,87,45,43,45,44,52,48,48,45,47,45,48,1151,77,40,41,50",
-                        "endOffsets": "6777,6908,6996,7042,7597,7762,7807,8085,8246,8295,12782,12946,12992,13145,14297,14375,14416,14458,14555"
+                        "startLines": "9,12,15,16,17,18,19",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "630,806,978,1023,1065,1109,1151",
+                        "endColumns": "44,39,44,41,43,41,42",
+                        "endOffsets": "670,841,1018,1060,1104,1146,1189"
                     }
                 },
                 {
@@ -302,6 +283,25 @@
                         "startOffsets": "14932,14988",
                         "endColumns": "55,54",
                         "endOffsets": "14983,15038"
+                    }
+                },
+                {
+                    "source": "/home/mozeu/Descargas/Nanys (copia)/app/src/main/res/values/themes.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "287"
+                    },
+                    "to": {
+                        "startLines": "256",
+                        "startColumns": "4",
+                        "startOffsets": "17087",
+                        "endLines": "259",
+                        "endColumns": "12",
+                        "endOffsets": "17319"
                     }
                 },
                 {

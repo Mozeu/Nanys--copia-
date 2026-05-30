@@ -80,7 +80,11 @@ fun NanysNavGraph(
             CaregiverAgendaScreen(viewModel, onBack = { navController.popBackStack() })
         }
         composable(NavRoutes.CAREGIVER_PROFILE) {
-            CaregiverProfileScreen(viewModel, onBack = { navController.popBackStack() })
+            CaregiverProfileScreen(
+                viewModel,
+                onBack = { navController.popBackStack() },
+                onSaved = { navigateToRoleHome(UserRole.CUIDADOR) }
+            )
         }
         composable(NavRoutes.CAREGIVER_REGULATIONS) {
             RegulationsScreen(onBack = { navController.popBackStack() })
@@ -103,7 +107,11 @@ fun NanysNavGraph(
             TutorAgendaScreen(viewModel, onBack = { navController.popBackStack() })
         }
         composable(NavRoutes.TUTOR_PROFILE) {
-            TutorProfileScreen(viewModel, onBack = { navController.popBackStack() })
+            TutorProfileScreen(
+                viewModel,
+                onBack = { navController.popBackStack() },
+                onSaved = { navigateToRoleHome(UserRole.TUTOR) }
+            )
         }
         composable(
             route = NavRoutes.BOOK_APPOINTMENT,

@@ -59,11 +59,11 @@ com.nanys.care.app-navigation-runtime-2.8.5-57 /home/mozeu/.gradle/caches/8.13/t
 com.nanys.care.app-navigation-runtime-ktx-2.8.5-58 /home/mozeu/.gradle/caches/8.13/transforms/f3318f253bb26fd051a325ff3bd2f548/transformed/navigation-runtime-ktx-2.8.5/res
 com.nanys.care.app-material-icons-core-release-59 /home/mozeu/.gradle/caches/8.13/transforms/fbd962d6fa6a8dd285fe2fe0d345f591/transformed/material-icons-core-release/res
 com.nanys.care.app-core-runtime-2.2.0-60 /home/mozeu/.gradle/caches/8.13/transforms/ff4f91123de75983a4c52e829d020de8/transformed/core-runtime-2.2.0/res
-com.nanys.care.app-pngs-61 /home/mozeu/Descargas/Nanys/app/build/generated/res/pngs/debug
-com.nanys.care.app-resValues-62 /home/mozeu/Descargas/Nanys/app/build/generated/res/resValues/debug
-com.nanys.care.app-updated_navigation_xml-63 /home/mozeu/Descargas/Nanys/app/build/generated/updated_navigation_xml/debug
-com.nanys.care.app-packageDebugResources-64 /home/mozeu/Descargas/Nanys/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
-com.nanys.care.app-packageDebugResources-65 /home/mozeu/Descargas/Nanys/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
-com.nanys.care.app-debug-66 /home/mozeu/Descargas/Nanys/app/build/intermediates/merged_res/debug/mergeDebugResources
-com.nanys.care.app-debug-67 /home/mozeu/Descargas/Nanys/app/src/debug/res
-com.nanys.care.app-main-68 /home/mozeu/Descargas/Nanys/app/src/main/res
+com.nanys.care.app-pngs-61 /home/mozeu/Descargas/Nanys (copia)/app/build/generated/res/pngs/debug
+com.nanys.care.app-resValues-62 /home/mozeu/Descargas/Nanys (copia)/app/build/generated/res/resValues/debug
+com.nanys.care.app-updated_navigation_xml-63 /home/mozeu/Descargas/Nanys (copia)/app/build/generated/updated_navigation_xml/debug
+com.nanys.care.app-packageDebugResources-64 /home/mozeu/Descargas/Nanys (copia)/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.nanys.care.app-packageDebugResources-65 /home/mozeu/Descargas/Nanys (copia)/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.nanys.care.app-debug-66 /home/mozeu/Descargas/Nanys (copia)/app/build/intermediates/merged_res/debug/mergeDebugResources
+com.nanys.care.app-debug-67 /home/mozeu/Descargas/Nanys (copia)/app/src/debug/res
+com.nanys.care.app-main-68 /home/mozeu/Descargas/Nanys (copia)/app/src/main/res

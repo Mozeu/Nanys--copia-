@@ -7,6 +7,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,19 +51,26 @@ fun TutorDashboardScreen(viewModel: NanysViewModel, onNavigate: (String) -> Unit
                 CaregiverListItem(cg, onClick = { onNavigate("caregiver_public/${cg.email}") })
             }
             Spacer(Modifier.height(8.dp))
-            NavigationChip("Buscar cuidadores", { onNavigate("tutor_search") })
-            NavigationChip("Mis reservas", { onNavigate("tutor_bookings") })
-            NavigationChip("Agenda", { onNavigate("tutor_agenda") })
-            NavigationChip("Chat", { onNavigate("chat_list") })
-            NavigationChip("Mi perfil", { onNavigate("tutor_profile") })
+            NavigationChip("Buscar cuidadores", Icons.Default.Search, { onNavigate("tutor_search") })
+            NavigationChip("Mis reservas", Icons.AutoMirrored.Filled.EventNote, { onNavigate("tutor_bookings") })
+            NavigationChip("Agenda", Icons.Default.CalendarMonth, { onNavigate("tutor_agenda") })
+            NavigationChip("Chat", Icons.AutoMirrored.Filled.Chat, { onNavigate("chat_list") })
+            NavigationChip("Mi perfil", Icons.Default.Person, { onNavigate("tutor_profile") })
         }
     }
 }
 
 @Composable
-private fun NavigationChip(text: String, onClick: () -> Unit) {
+private fun NavigationChip(
+    text: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit
+) {
     Card(onClick = onClick, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = RoundedCornerShape(12.dp)) {
-        Text(text, modifier = Modifier.padding(16.dp))
+        Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
+            Text(text, fontWeight = FontWeight.Medium)
+        }
     }
 }
 
@@ -122,7 +131,9 @@ fun SearchCaregiversScreen(viewModel: NanysViewModel, onBack: () -> Unit, onOpen
                     )
                 },
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            ) { Text("Buscar") }
+            ) {
+                ButtonIcon(Icons.Default.Search, "Buscar")
+            }
             LazyColumn {
                 items(results) { cg ->
                     CaregiverListItem(cg) { onOpenProfile(cg.email) }
@@ -151,8 +162,12 @@ fun CaregiverPublicProfileScreen(viewModel: NanysViewModel, email: String, onBac
                 Text("🎓 ${cg.certifications}")
                 Spacer(Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = onChat, modifier = Modifier.weight(1f)) { Text("Contactar") }
-                    Button(onClick = onBook, modifier = Modifier.weight(1f)) { Text("Solicitar cita") }
+                    Button(onClick = onChat, modifier = Modifier.weight(1f)) {
+                        ButtonIcon(Icons.Default.Email, "Contactar")
+                    }
+                    Button(onClick = onBook, modifier = Modifier.weight(1f)) {
+                        ButtonIcon(Icons.Default.CalendarMonth, "Solicitar cita")
+                    }
                 }
             }
         }
@@ -241,7 +256,9 @@ fun BookAppointmentScreen(viewModel: NanysViewModel, caregiverEmail: String, onB
                 },
                 enabled = validSelectedChildIds.isNotEmpty(),
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Confirmar reserva") }
+            ) {
+                ButtonIcon(Icons.Default.Check, "Confirmar reserva")
+            }
         }
     }
 
@@ -288,10 +305,14 @@ fun TutorBookingsScreen(viewModel: NanysViewModel, onBack: () -> Unit, onReview:
                 items(filtered) { b ->
                     BookingCard(b)
                     if (b.status == BookingStatus.ACCEPTED) {
-                        TextButton(onClick = { viewModel.completeBooking(b.id) }) { Text("Marcar completada") }
+                        TextButton(onClick = { viewModel.completeBooking(b.id) }) {
+                            ButtonIcon(Icons.Default.Check, "Marcar completada")
+                        }
                     }
                     if (b.status == BookingStatus.COMPLETED) {
-                        TextButton(onClick = { onReview(b.id) }) { Text("Calificar cuidador") }
+                        TextButton(onClick = { onReview(b.id) }) {
+                            ButtonIcon(Icons.Default.Star, "Calificar cuidador")
+                        }
                     }
                 }
             }
@@ -312,7 +333,9 @@ fun SubmitReviewScreen(viewModel: NanysViewModel, bookingId: Long, onBack: () ->
             Button(onClick = {
                 booking?.let { viewModel.submitReview(bookingId, it.caregiverEmail, rating, comment) }
                 onBack()
-            }) { Text("Enviar reseña") }
+            }) {
+                ButtonIcon(Icons.Default.Star, "Enviar reseña")
+            }
         }
     }
 }
@@ -328,7 +351,11 @@ fun TutorAgendaScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
 }
 
 @Composable
-fun TutorProfileScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
+fun TutorProfileScreen(
+    viewModel: NanysViewModel,
+    onBack: () -> Unit,
+    onSaved: () -> Unit = onBack
+) {
     val email = viewModel.userEmail ?: return
     var city by remember { mutableStateOf("") }
     var state by remember { mutableStateOf("") }
@@ -353,7 +380,17 @@ fun TutorProfileScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
             DropdownField("Estado", state, states) { state = it }
             OutlinedTextField(notes, { notes = it }, label = { Text("Notas personales") }, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(preferences, { preferences = it }, label = { Text("Preferencias") }, modifier = Modifier.fillMaxWidth())
-            Button(onClick = { viewModel.updateTutorProfile(TutorProfileEntity(email, city, state, notes, preferences)) }, modifier = Modifier.fillMaxWidth()) { Text("Guardar") }
+            Button(
+                onClick = {
+                    viewModel.updateTutorProfile(
+                        TutorProfileEntity(email, city, state, notes, preferences),
+                        onDone = onSaved
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ButtonIcon(Icons.Default.Save, "Guardar")
+            }
             HorizontalDivider(Modifier.padding(vertical = 16.dp))
             Text("Hijos", fontWeight = FontWeight.Bold)
             profile?.children?.forEach { c ->
@@ -370,7 +407,9 @@ fun TutorProfileScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
             Button(onClick = {
                 viewModel.saveChild(ChildEntity(tutorEmail = email, name = childName, age = childAge.toIntOrNull() ?: 0, specialNeeds = childNeeds))
                 childName = ""; childAge = ""; childNeeds = ""
-            }) { Text("Agregar hijo/a") }
+            }) {
+                ButtonIcon(Icons.Default.Add, "Agregar hijo/a")
+            }
         }
     }
 }

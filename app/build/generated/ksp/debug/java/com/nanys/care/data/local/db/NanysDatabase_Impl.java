@@ -48,7 +48,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `users` (`email` TEXT NOT NULL, `passwordHash` TEXT NOT NULL, `role` TEXT NOT NULL, `fullName` TEXT NOT NULL, `phone` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`email`))");
@@ -59,7 +59,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `tutor_profiles` (`email` TEXT NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `notes` TEXT NOT NULL, `preferences` TEXT NOT NULL, PRIMARY KEY(`email`), FOREIGN KEY(`email`) REFERENCES `users`(`email`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE TABLE IF NOT EXISTS `children` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tutorEmail` TEXT NOT NULL, `name` TEXT NOT NULL, `age` INTEGER NOT NULL, `specialNeeds` TEXT NOT NULL, FOREIGN KEY(`tutorEmail`) REFERENCES `tutor_profiles`(`email`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_children_tutorEmail` ON `children` (`tutorEmail`)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `bookings` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tutorEmail` TEXT NOT NULL, `caregiverEmail` TEXT NOT NULL, `date` TEXT NOT NULL, `timeSlot` TEXT NOT NULL, `durationHours` INTEGER NOT NULL, `location` TEXT NOT NULL, `childId` INTEGER, `additionalNotes` TEXT NOT NULL, `totalPrice` REAL NOT NULL, `status` TEXT NOT NULL, `colorHex` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `bookings` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tutorEmail` TEXT NOT NULL, `caregiverEmail` TEXT NOT NULL, `date` TEXT NOT NULL, `timeSlot` TEXT NOT NULL, `durationHours` INTEGER NOT NULL, `location` TEXT NOT NULL, `childId` INTEGER, `childIds` TEXT NOT NULL DEFAULT '', `additionalNotes` TEXT NOT NULL, `totalPrice` REAL NOT NULL, `status` TEXT NOT NULL, `colorHex` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_bookings_caregiverEmail` ON `bookings` (`caregiverEmail`)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_bookings_tutorEmail` ON `bookings` (`tutorEmail`)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_bookings_date` ON `bookings` (`date`)");
@@ -77,7 +77,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `catalog_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `category` TEXT NOT NULL, `name` TEXT NOT NULL, `value` TEXT NOT NULL, `extra` TEXT NOT NULL)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_catalog_items_category` ON `catalog_items` (`category`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2b9eec7f76de79bf629100e781ce1a3e')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b91b94d3533e2a2bdbdf151a3342532a')");
       }
 
       @Override
@@ -207,7 +207,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
                   + " Expected:\n" + _infoChildren + "\n"
                   + " Found:\n" + _existingChildren);
         }
-        final HashMap<String, TableInfo.Column> _columnsBookings = new HashMap<String, TableInfo.Column>(13);
+        final HashMap<String, TableInfo.Column> _columnsBookings = new HashMap<String, TableInfo.Column>(14);
         _columnsBookings.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("tutorEmail", new TableInfo.Column("tutorEmail", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("caregiverEmail", new TableInfo.Column("caregiverEmail", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -216,6 +216,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
         _columnsBookings.put("durationHours", new TableInfo.Column("durationHours", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("location", new TableInfo.Column("location", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("childId", new TableInfo.Column("childId", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsBookings.put("childIds", new TableInfo.Column("childIds", "TEXT", true, 0, "''", TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("additionalNotes", new TableInfo.Column("additionalNotes", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("totalPrice", new TableInfo.Column("totalPrice", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBookings.put("status", new TableInfo.Column("status", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -308,7 +309,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "2b9eec7f76de79bf629100e781ce1a3e", "b79a56c35e85ba35f369b12d63eed4df");
+    }, "b91b94d3533e2a2bdbdf151a3342532a", "2e9bb7ed2ac0df452b10e4c9e30e3392");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
