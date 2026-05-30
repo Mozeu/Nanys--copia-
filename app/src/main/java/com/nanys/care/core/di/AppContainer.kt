@@ -30,6 +30,7 @@ class AppContainer(context: Context) {
         "nanys_care.db"
     )
         .addMigrations(MIGRATION_1_2)
+        .addMigrations(MIGRATION_2_3)
         .build()
 
     val authRepository = AuthRepository(database, sessionManager)
@@ -51,6 +52,15 @@ class AppContainer(context: Context) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE bookings ADD COLUMN childIds TEXT NOT NULL DEFAULT ''")
                 db.execSQL("UPDATE bookings SET childIds = CAST(childId AS TEXT) WHERE childId IS NOT NULL")
+            }
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE caregiver_profiles ADD COLUMN availabilityStart TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE caregiver_profiles ADD COLUMN availabilityEnd TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE caregiver_profiles ADD COLUMN availabilityExceptions TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE caregiver_profiles ADD COLUMN extraChildRate REAL NOT NULL DEFAULT 0.0")
             }
         }
     }

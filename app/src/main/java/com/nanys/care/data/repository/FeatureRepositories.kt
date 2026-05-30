@@ -33,7 +33,8 @@ class CaregiverRepository(private val db: NanysDatabase) {
             if (rating < filter.minRating) return@mapNotNull null
             if (filter.query.isNotBlank() &&
                 !user.fullName.contains(filter.query, ignoreCase = true) &&
-                !profile.city.contains(filter.query, ignoreCase = true)
+                !profile.city.contains(filter.query, ignoreCase = true) &&
+                !profile.certifications.contains(filter.query, ignoreCase = true)
             ) return@mapNotNull null
             profile.toDomain(user.fullName, rating, reviewCount)
         }.sortedByDescending { it.averageRating }
@@ -112,7 +113,10 @@ class ChatRepository(
     fun conversationsForUser(email: String): Flow<List<ConversationSummary>> {
         return db.messageDao().observeAll().flatMapLatest { messages ->
             flow {
-                val grouped = messages.groupBy { msg ->
+                val userMessages = messages.filter { msg ->
+                    msg.senderEmail == email || msg.receiverEmail == email
+                }
+                val grouped = userMessages.groupBy { msg ->
                     if (msg.senderEmail == email) msg.receiverEmail else msg.senderEmail
                 }
                 val summaries = grouped.mapNotNull { (other, msgs) ->

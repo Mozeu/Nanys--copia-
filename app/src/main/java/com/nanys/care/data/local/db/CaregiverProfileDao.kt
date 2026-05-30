@@ -34,7 +34,13 @@ interface CaregiverProfileDao {
           AND cp.hourlyRate >= :minPrice
           AND cp.hourlyRate <= :maxPrice
           AND cp.experienceYears >= :minExperience
-          AND (:availability = '' OR cp.availability LIKE '%' || :availability || '%')
+          AND (
+              :availability = ''
+              OR cp.availability LIKE '%' || :availability || '%'
+              OR cp.availabilityStart LIKE '%' || :availability || '%'
+              OR cp.availabilityEnd LIKE '%' || :availability || '%'
+              OR cp.availabilityExceptions LIKE '%' || :availability || '%'
+          )
         """
     )
     fun search(

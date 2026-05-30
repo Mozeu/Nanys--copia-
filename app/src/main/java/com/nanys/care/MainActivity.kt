@@ -9,6 +9,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -37,10 +39,12 @@ class MainActivity : ComponentActivity() {
         val factory = NanysViewModelFactory(container)
 
         setContent {
-            NanysTheme {
+            val navController = rememberNavController()
+            val viewModel: NanysViewModel = viewModel(factory = factory)
+            val currentUser by viewModel.currentUser.collectAsState()
+
+            NanysTheme(role = currentUser?.role ?: viewModel.userRole) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    val navController = rememberNavController()
-                    val viewModel: NanysViewModel = viewModel(factory = factory)
                     val start = if (viewModel.isLoggedIn) {
                         startDestinationForRole(viewModel.userRole)
                     } else NavRoutes.LOGIN

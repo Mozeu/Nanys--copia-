@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nanys.care.domain.model.CaregiverProfile
+import com.nanys.care.presentation.common.DashboardGridCard
 import com.nanys.care.presentation.common.NanysScaffold
 import com.nanys.care.presentation.common.StatCard
 import com.nanys.care.presentation.viewmodel.NanysViewModel
@@ -25,26 +26,16 @@ fun SupervisorDashboardScreen(viewModel: NanysViewModel, onNavigate: (String) ->
         viewModel.loadCaregivers()
     }
 
-    NanysScaffold(title = "Panel Supervisor", onLogout = onLogout) { padding ->
+    NanysScaffold(title = "Inicio", onLogout = onLogout) { padding ->
         Column(Modifier.padding(padding).padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard("Verificados", "$verified", Modifier.weight(1f))
                 StatCard("Mensajes hoy", "$todayMsgs", Modifier.weight(1f))
             }
             Spacer(Modifier.height(16.dp))
-            Card(onClick = { onNavigate("supervisor_chats") }, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = RoundedCornerShape(12.dp)) {
-                Row(Modifier.padding(16.dp)) {
-                    Icon(Icons.Default.Chat, null)
-                    Spacer(Modifier.width(12.dp))
-                    Text("Ver todas las conversaciones", fontWeight = FontWeight.Medium)
-                }
-            }
-            Card(onClick = { onNavigate("supervisor_verification") }, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = RoundedCornerShape(12.dp)) {
-                Row(Modifier.padding(16.dp)) {
-                    Icon(Icons.Default.VerifiedUser, null)
-                    Spacer(Modifier.width(12.dp))
-                    Text("Gestionar verificaciones", fontWeight = FontWeight.Medium)
-                }
+            Row(Modifier.fillMaxWidth()) {
+                DashboardGridCard("Conversaciones", Icons.Default.Chat, Modifier.weight(1f), "Supervisión") { onNavigate("supervisor_chats") }
+                DashboardGridCard("Verificaciones", Icons.Default.VerifiedUser, Modifier.weight(1f), "Cuidadores") { onNavigate("supervisor_verification") }
             }
         }
     }

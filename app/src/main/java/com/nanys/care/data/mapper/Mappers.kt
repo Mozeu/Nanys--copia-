@@ -21,7 +21,11 @@ fun CaregiverProfileEntity.toDomain(
     experienceYears = experienceYears,
     certifications = certifications,
     availability = availability,
+    availabilityStart = availabilityStart,
+    availabilityEnd = availabilityEnd,
+    availabilityExceptions = availabilityExceptions,
     hourlyRate = hourlyRate,
+    extraChildRate = extraChildRate,
     city = city,
     state = state,
     verified = verified,
@@ -47,7 +51,9 @@ fun BookingEntity.toDomain(
     childName: String = "",
     childIdsParam: List<Long> = childIds.split(",").mapNotNull { it.toLongOrNull() }
         .ifEmpty { childId?.let { listOf(it) } ?: emptyList() },
-    tutorNotes: String = ""
+    tutorNotes: String = "",
+    hourlyRate: Double = 0.0,
+    extraChildRate: Double = 0.0
 ) = Booking(
     id = id,
     tutorEmail = tutorEmail,
@@ -64,6 +70,8 @@ fun BookingEntity.toDomain(
     additionalNotes = additionalNotes,
     tutorNotes = tutorNotes,
     totalPrice = totalPrice,
+    hourlyRate = hourlyRate,
+    extraChildRate = extraChildRate,
     status = BookingStatus.fromString(status),
     colorHex = colorHex
 )

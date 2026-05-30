@@ -14,7 +14,11 @@ data class CaregiverProfile(
     val experienceYears: Int,
     val certifications: String,
     val availability: String,
+    val availabilityStart: String = "",
+    val availabilityEnd: String = "",
+    val availabilityExceptions: String = "",
     val hourlyRate: Double,
+    val extraChildRate: Double = 0.0,
     val city: String,
     val state: String,
     val verified: Boolean,
@@ -56,6 +60,8 @@ data class Booking(
     val additionalNotes: String,
     val tutorNotes: String = "",
     val totalPrice: Double,
+    val hourlyRate: Double = 0.0,
+    val extraChildRate: Double = 0.0,
     val status: BookingStatus,
     val colorHex: String
 )

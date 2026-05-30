@@ -48,11 +48,11 @@ public final class NanysDatabase_Impl extends NanysDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(3) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `users` (`email` TEXT NOT NULL, `passwordHash` TEXT NOT NULL, `role` TEXT NOT NULL, `fullName` TEXT NOT NULL, `phone` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`email`))");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `caregiver_profiles` (`email` TEXT NOT NULL, `photoUri` TEXT NOT NULL, `experienceYears` INTEGER NOT NULL, `certifications` TEXT NOT NULL, `availability` TEXT NOT NULL, `hourlyRate` REAL NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `verified` INTEGER NOT NULL, PRIMARY KEY(`email`), FOREIGN KEY(`email`) REFERENCES `users`(`email`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `caregiver_profiles` (`email` TEXT NOT NULL, `photoUri` TEXT NOT NULL, `experienceYears` INTEGER NOT NULL, `certifications` TEXT NOT NULL, `availability` TEXT NOT NULL, `availabilityStart` TEXT NOT NULL, `availabilityEnd` TEXT NOT NULL, `availabilityExceptions` TEXT NOT NULL, `hourlyRate` REAL NOT NULL, `extraChildRate` REAL NOT NULL, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `verified` INTEGER NOT NULL, PRIMARY KEY(`email`), FOREIGN KEY(`email`) REFERENCES `users`(`email`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_caregiver_profiles_city` ON `caregiver_profiles` (`city`)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_caregiver_profiles_state` ON `caregiver_profiles` (`state`)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_caregiver_profiles_hourlyRate` ON `caregiver_profiles` (`hourlyRate`)");
@@ -77,7 +77,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `catalog_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `category` TEXT NOT NULL, `name` TEXT NOT NULL, `value` TEXT NOT NULL, `extra` TEXT NOT NULL)");
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_catalog_items_category` ON `catalog_items` (`category`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b91b94d3533e2a2bdbdf151a3342532a')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7944be571dfca8bdad07378eeeb80513')");
       }
 
       @Override
@@ -151,13 +151,17 @@ public final class NanysDatabase_Impl extends NanysDatabase {
                   + " Expected:\n" + _infoUsers + "\n"
                   + " Found:\n" + _existingUsers);
         }
-        final HashMap<String, TableInfo.Column> _columnsCaregiverProfiles = new HashMap<String, TableInfo.Column>(9);
+        final HashMap<String, TableInfo.Column> _columnsCaregiverProfiles = new HashMap<String, TableInfo.Column>(13);
         _columnsCaregiverProfiles.put("email", new TableInfo.Column("email", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCaregiverProfiles.put("photoUri", new TableInfo.Column("photoUri", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCaregiverProfiles.put("experienceYears", new TableInfo.Column("experienceYears", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCaregiverProfiles.put("certifications", new TableInfo.Column("certifications", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCaregiverProfiles.put("availability", new TableInfo.Column("availability", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCaregiverProfiles.put("availabilityStart", new TableInfo.Column("availabilityStart", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCaregiverProfiles.put("availabilityEnd", new TableInfo.Column("availabilityEnd", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCaregiverProfiles.put("availabilityExceptions", new TableInfo.Column("availabilityExceptions", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCaregiverProfiles.put("hourlyRate", new TableInfo.Column("hourlyRate", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCaregiverProfiles.put("extraChildRate", new TableInfo.Column("extraChildRate", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCaregiverProfiles.put("city", new TableInfo.Column("city", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCaregiverProfiles.put("state", new TableInfo.Column("state", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCaregiverProfiles.put("verified", new TableInfo.Column("verified", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -309,7 +313,7 @@ public final class NanysDatabase_Impl extends NanysDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "b91b94d3533e2a2bdbdf151a3342532a", "2e9bb7ed2ac0df452b10e4c9e30e3392");
+    }, "7944be571dfca8bdad07378eeeb80513", "b40113874afcbd148f17dedcbab91224");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

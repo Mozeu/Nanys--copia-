@@ -42,6 +42,8 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages.asStateFlow()
+    private var conversationsJob: Job? = null
+    private var messagesJob: Job? = null
 
     private val _caregivers = MutableStateFlow<List<CaregiverProfile>>(emptyList())
     val caregivers: StateFlow<List<CaregiverProfile>> = _caregivers.asStateFlow()
@@ -57,6 +59,9 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
 
     private val _states = MutableStateFlow<List<String>>(emptyList())
     val states: StateFlow<List<String>> = _states.asStateFlow()
+
+    private val _certifications = MutableStateFlow<List<String>>(emptyList())
+    val certifications: StateFlow<List<String>> = _certifications.asStateFlow()
 
     private val _adminStats = MutableStateFlow(0 to 0)
     val adminStats: StateFlow<Pair<Int, Int>> = _adminStats.asStateFlow()
@@ -129,7 +134,15 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
 
     fun logout(onDone: () -> Unit) {
         container.authRepository.logout()
+        bookingsJob?.cancel()
+        conversationsJob?.cancel()
+        messagesJob?.cancel()
         _currentUser.value = null
+        _bookings.value = emptyList()
+        _conversations.value = emptyList()
+        _messages.value = emptyList()
+        _selectedCaregiver.value = null
+        _selectedTutor.value = null
         onDone()
     }
 
@@ -195,8 +208,24 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
             return
         }
         viewModelScope.launch {
+            val caregiver = _selectedCaregiver.value
+            val extraChildRate = if (caregiver?.email == caregiverEmail) {
+                caregiver.extraChildRate
+            } else {
+                container.caregiverRepository.getCaregiverPublic(caregiverEmail)?.extraChildRate ?: 0.0
+            }
             container.bookingRepository.createBooking(
-                tutor, caregiverEmail, date, hour, minute, duration, location, childIds, notes, hourlyRate
+                tutor,
+                caregiverEmail,
+                date,
+                hour,
+                minute,
+                duration,
+                location,
+                childIds,
+                notes,
+                hourlyRate,
+                extraChildRate
             )
             loadBookingsForTutor(tutor)
         }
@@ -219,7 +248,8 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     fun loadConversations(email: String) {
-        viewModelScope.launch {
+        conversationsJob?.cancel()
+        conversationsJob = viewModelScope.launch {
             container.chatRepository.conversationsForUser(email).collect {
                 _conversations.value = it
             }
@@ -227,7 +257,12 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     fun loadAllConversations() {
-        viewModelScope.launch {
+        if (userRole != UserRole.SUPERVISOR) {
+            _conversations.value = emptyList()
+            return
+        }
+        conversationsJob?.cancel()
+        conversationsJob = viewModelScope.launch {
             container.chatRepository.observeAllMessages().collect { msgs ->
                 val grouped = msgs.groupBy {
                     listOf(it.senderEmail, it.receiverEmail).sorted().joinToString("|")
@@ -249,7 +284,13 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     fun loadMessages(myEmail: String, otherEmail: String) {
-        viewModelScope.launch {
+        val currentEmail = userEmail
+        if (userRole != UserRole.SUPERVISOR && myEmail != currentEmail) {
+            _messages.value = emptyList()
+            return
+        }
+        messagesJob?.cancel()
+        messagesJob = viewModelScope.launch {
             container.chatRepository.observeConversation(myEmail, otherEmail).collect {
                 _messages.value = it
             }
@@ -288,8 +329,17 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     fun saveChild(child: ChildEntity) {
+        val trimmedName = child.name.trim()
+        if (trimmedName.isBlank()) {
+            _error.value = "El nombre del hijo/a es obligatorio"
+            return
+        }
+        if (child.age <= 0) {
+            _error.value = "La edad del hijo/a es obligatoria"
+            return
+        }
         viewModelScope.launch {
-            container.tutorRepository.saveChild(child)
+            container.tutorRepository.saveChild(child.copy(name = trimmedName, specialNeeds = child.specialNeeds.trim()))
             userEmail?.let { loadTutorPrivate(it) }
         }
     }
@@ -327,6 +377,7 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
     fun addCatalogItem(category: String, name: String) {
         viewModelScope.launch {
             container.catalogRepository.add(CatalogItemEntity(category = category, name = name, value = name))
+            if (category in listOf("city", "state", "certification")) refreshCatalogLookups()
             loadCatalog(category)
         }
     }
@@ -336,6 +387,7 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
             container.catalogRepository.delete(
                 CatalogItemEntity(id = item.id, category = item.category, name = item.name, value = item.value, extra = item.extra)
             )
+            if (item.category in listOf("city", "state", "certification")) refreshCatalogLookups()
             loadCatalog(item.category)
         }
     }
@@ -357,13 +409,17 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
         }
     }
 
+    private suspend fun refreshCatalogLookups() {
+        val cities = container.catalogRepository.observeCategory("city").first()
+        val states = container.catalogRepository.observeCategory("state").first()
+        val certifications = container.catalogRepository.observeCategory("certification").first()
+        _cities.value = cities.map { it.name }
+        _states.value = states.map { it.name }
+        _certifications.value = certifications.map { it.name }
+    }
+
     private fun loadCatalogLocations() {
-        viewModelScope.launch {
-            val cities = container.catalogRepository.observeCategory("city").first()
-            val states = container.catalogRepository.observeCategory("state").first()
-            _cities.value = cities.map { it.name }
-            _states.value = states.map { it.name }
-        }
+        viewModelScope.launch { refreshCatalogLookups() }
     }
 
     fun loadAdminStats() {
@@ -377,8 +433,14 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
 
     fun loadSupervisorStats() {
         viewModelScope.launch {
-            container.caregiverRepository.countVerified().collect { _verifiedCount.value = it }
-            container.chatRepository.countTodayConversations().collect { _todayMessages.value = it }
+            combine(
+                container.caregiverRepository.countVerified(),
+                container.chatRepository.countTodayConversations()
+            ) { verified, messages -> verified to messages }
+                .collect { (verified, messages) ->
+                    _verifiedCount.value = verified
+                    _todayMessages.value = messages
+                }
         }
     }
 

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nanys.care.domain.model.CatalogItem
 import com.nanys.care.presentation.common.ButtonIcon
+import com.nanys.care.presentation.common.DashboardGridCard
 import com.nanys.care.presentation.common.NanysScaffold
 import com.nanys.care.presentation.common.StatCard
 import com.nanys.care.presentation.viewmodel.NanysViewModel
@@ -23,17 +24,21 @@ fun AdminDashboardScreen(viewModel: NanysViewModel, onNavigate: (String) -> Unit
     val stats by viewModel.adminStats.collectAsState()
     LaunchedEffect(Unit) { viewModel.loadAdminStats() }
 
-    NanysScaffold(title = "Panel Admin", onLogout = onLogout) { padding ->
+    NanysScaffold(title = "Inicio", onLogout = onLogout) { padding ->
         Column(Modifier.padding(padding).padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard("Cuidadores", "${stats.first}", Modifier.weight(1f))
                 StatCard("Tutores", "${stats.second}", Modifier.weight(1f))
             }
             Spacer(Modifier.height(16.dp))
-            CatalogNavButton("Experiencias", "experience", onNavigate)
-            CatalogNavButton("Certificaciones", "certification", onNavigate)
-            CatalogNavButton("Ciudades", "city", onNavigate)
-            CatalogNavButton("Estados", "state", onNavigate)
+            Row(Modifier.fillMaxWidth()) {
+                DashboardGridCard("Experiencias", Icons.Default.Work, Modifier.weight(1f), "Catálogo") { onNavigate("admin_catalog/experience") }
+                DashboardGridCard("Certificaciones", Icons.Default.School, Modifier.weight(1f), "Catálogo") { onNavigate("admin_catalog/certification") }
+            }
+            Row(Modifier.fillMaxWidth()) {
+                DashboardGridCard("Ciudades", Icons.Default.Place, Modifier.weight(1f), "Ubicaciones") { onNavigate("admin_catalog/city") }
+                DashboardGridCard("Estados", Icons.Default.Map, Modifier.weight(1f), "Ubicaciones") { onNavigate("admin_catalog/state") }
+            }
         }
     }
 }
@@ -69,7 +74,13 @@ fun CatalogManagementScreen(viewModel: NanysViewModel, category: String, onBack:
             title = { Text("Agregar registro") },
             text = { OutlinedTextField(newName, { newName = it }, label = { Text("Nombre") }) },
             confirmButton = {
-                TextButton(onClick = { viewModel.addCatalogItem(category, newName); newName = ""; showDialog = false }) {
+                TextButton(onClick = {
+                    if (newName.isNotBlank()) {
+                        viewModel.addCatalogItem(category, newName.trim())
+                        newName = ""
+                        showDialog = false
+                    }
+                }) {
                     ButtonIcon(Icons.Default.Add, "Agregar")
                 }
             },

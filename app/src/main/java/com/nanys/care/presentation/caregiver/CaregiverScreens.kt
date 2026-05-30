@@ -11,14 +11,18 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.text.KeyboardOptions
 import com.nanys.care.R
 import com.nanys.care.data.local.entity.CaregiverProfileEntity
 import com.nanys.care.domain.model.BookingStatus
 import com.nanys.care.presentation.common.*
 import com.nanys.care.presentation.viewmodel.NanysViewModel
+import java.util.Locale
 
 @Composable
 fun CaregiverDashboardScreen(
@@ -29,18 +33,17 @@ fun CaregiverDashboardScreen(
     val email = viewModel.userEmail ?: return
     val bookings by viewModel.bookings.collectAsState()
     val pending = bookings.count { it.status == BookingStatus.PENDING }
-    val today = bookings.count { it.status == BookingStatus.ACCEPTED }
-    var profile by remember { mutableStateOf<com.nanys.care.domain.model.CaregiverProfile?>(null) }
+    val accepted = bookings.count { it.status == BookingStatus.ACCEPTED }
+    val completed = bookings.count { it.status == BookingStatus.COMPLETED }
 
     LaunchedEffect(email) {
         viewModel.loadBookingsForCaregiver(email)
         viewModel.loadCaregiverPublic(email)
-        profile = viewModel.selectedCaregiver.value
     }
     val caregiverProfile by viewModel.selectedCaregiver.collectAsState()
 
     NanysScaffold(
-        title = "Panel Cuidador",
+        title = "Inicio",
         onProfileClick = { onNavigate("caregiver_profile") },
         onMessagesClick = { onNavigate("chat_list") },
         onSettingsClick = { onNavigate("settings") },
@@ -49,16 +52,22 @@ fun CaregiverDashboardScreen(
         Column(Modifier.padding(padding).padding(16.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard("Solicitudes pendientes", "$pending", Modifier.weight(1f))
-                StatCard("Citas hoy", "$today", Modifier.weight(1f))
+                StatCard("Citas aceptadas", "$accepted", Modifier.weight(1f))
                 StatCard("Calificación", String.format("%.1f", caregiverProfile?.averageRating ?: 0.0), Modifier.weight(1f))
             }
             Spacer(Modifier.height(16.dp))
-            NavigationButton("Mis solicitudes", Icons.Default.Notifications, { onNavigate("caregiver_requests") })
-            NavigationButton("Agenda", Icons.Default.CalendarMonth, { onNavigate("caregiver_agenda") })
-            NavigationButton("Chat", Icons.Default.Chat, { onNavigate("chat_list") })
-            NavigationButton("Mi perfil", Icons.Default.Person, { onNavigate("caregiver_profile") })
-            NavigationButton("Reglamento", Icons.Default.MenuBook, { onNavigate("caregiver_regulations") })
-            NavigationButton("Notas privadas", Icons.Default.Note, { onNavigate("caregiver_private_notes") })
+            Row(Modifier.fillMaxWidth()) {
+                DashboardGridCard("Solicitudes", Icons.Default.Notifications, Modifier.weight(1f), "$pending pendientes") { onNavigate("caregiver_requests") }
+                DashboardGridCard("Agenda", Icons.Default.CalendarMonth, Modifier.weight(1f), "$accepted aceptadas") { onNavigate("caregiver_agenda") }
+            }
+            Row(Modifier.fillMaxWidth()) {
+                DashboardGridCard("Chat", Icons.Default.Chat, Modifier.weight(1f), "Mensajes") { onNavigate("chat_list") }
+                DashboardGridCard("Mi perfil", Icons.Default.Person, Modifier.weight(1f), "Tarifas y disponibilidad") { onNavigate("caregiver_profile") }
+            }
+            Row(Modifier.fillMaxWidth()) {
+                DashboardGridCard("Reglamento", Icons.Default.MenuBook, Modifier.weight(1f), "Políticas") { onNavigate("caregiver_regulations") }
+                DashboardGridCard("Notas privadas", Icons.Default.Note, Modifier.weight(1f), "$completed completadas") { onNavigate("caregiver_private_notes") }
+            }
         }
     }
 }
@@ -109,6 +118,7 @@ fun CaregiverAgendaScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CaregiverProfileScreen(
     viewModel: NanysViewModel,
@@ -118,12 +128,21 @@ fun CaregiverProfileScreen(
     val email = viewModel.userEmail ?: return
     var experience by remember { mutableIntStateOf(0) }
     var certs by remember { mutableStateOf("") }
-    var availability by remember { mutableStateOf("") }
+    var availabilityStart by remember { mutableStateOf("") }
+    var availabilityEnd by remember { mutableStateOf("") }
+    var availabilityExceptions by remember { mutableStateOf("") }
     var rate by remember { mutableStateOf("") }
+    var extraRate by remember { mutableStateOf("") }
+    var rateClearedOnFocus by remember { mutableStateOf(false) }
+    var extraRateClearedOnFocus by remember { mutableStateOf(false) }
+    var showStartPicker by remember { mutableStateOf(false) }
+    var showEndPicker by remember { mutableStateOf(false) }
+    var attemptedSave by remember { mutableStateOf(false) }
     var city by remember { mutableStateOf("") }
     var state by remember { mutableStateOf("") }
     val cities by viewModel.cities.collectAsState()
     val states by viewModel.states.collectAsState()
+    val certifications by viewModel.certifications.collectAsState()
 
     LaunchedEffect(email) { viewModel.loadCaregiverPublic(email) }
     val profile by viewModel.selectedCaregiver.collectAsState()
@@ -131,12 +150,26 @@ fun CaregiverProfileScreen(
         profile?.let {
             experience = it.experienceYears
             certs = it.certifications
-            availability = it.availability
-            rate = it.hourlyRate.toString()
+            availabilityStart = it.availabilityStart.ifBlank { it.availability.substringBefore("-", "") }
+            availabilityEnd = it.availabilityEnd.ifBlank { it.availability.substringAfter("-", "") }
+            availabilityExceptions = it.availabilityExceptions
+            rate = it.hourlyRate.toEditableMoney()
+            extraRate = it.extraChildRate.toEditableMoney()
+            rateClearedOnFocus = false
+            extraRateClearedOnFocus = false
             city = it.city
             state = it.state
         }
     }
+
+    val baseRate = rate.toDoubleOrNull()
+    val extraChildRate = extraRate.toDoubleOrNull() ?: 0.0
+    val formValid = certs.isNotBlank() &&
+        availabilityStart.isNotBlank() &&
+        availabilityEnd.isNotBlank() &&
+        baseRate != null &&
+        city.isNotBlank() &&
+        state.isNotBlank()
 
     NanysScaffold(title = "Mi perfil", onLogout = onBack, showProfileMenu = false) { padding ->
         Column(Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState())) {
@@ -146,18 +179,90 @@ fun CaregiverProfileScreen(
                 Text("${it.reviewCount} reseñas")
             }
             Spacer(Modifier.height(16.dp))
-            OutlinedTextField(experience.toString(), { experience = it.toIntOrNull() ?: 0 }, label = { Text("Años experiencia") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(certs, { certs = it }, label = { Text("Certificaciones") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(availability, { availability = it }, label = { Text("Disponibilidad") }, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(rate, { rate = it }, label = { Text("Tarifa/hora") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                experience.toString(),
+                { experience = it.filter(Char::isDigit).take(2).toIntOrNull() ?: 0 },
+                label = { Text("Años experiencia") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+            DropdownField("Certificación", certs, certifications) { certs = it }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { showStartPicker = true }, modifier = Modifier.weight(1f)) {
+                    ButtonIcon(Icons.Default.Schedule, "Inicio $availabilityStart")
+                }
+                OutlinedButton(onClick = { showEndPicker = true }, modifier = Modifier.weight(1f)) {
+                    ButtonIcon(Icons.Default.Schedule, "Fin $availabilityEnd")
+                }
+            }
+            OutlinedTextField(
+                availabilityExceptions,
+                { availabilityExceptions = it },
+                label = { Text("Excepciones de disponibilidad") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                rate,
+                { rate = sanitizeDecimalInput(it) },
+                label = { Text("Tarifa/hora") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged {
+                        if (it.isFocused && !rateClearedOnFocus) {
+                            rate = ""
+                            rateClearedOnFocus = true
+                        }
+                    },
+                isError = attemptedSave && baseRate == null,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            )
+            OutlinedTextField(
+                extraRate,
+                { extraRate = sanitizeDecimalInput(it) },
+                label = { Text("Aumento por niño extra/hora") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged {
+                        if (it.isFocused && !extraRateClearedOnFocus) {
+                            extraRate = ""
+                            extraRateClearedOnFocus = true
+                        }
+                    },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            )
             DropdownField("Ciudad", city, cities) { city = it }
             DropdownField("Estado", state, states) { state = it }
+            if (attemptedSave && !formValid) {
+                Text(
+                    "Completa certificación, horario, tarifa, ciudad y estado.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
             Button(
                 onClick = {
-                    viewModel.updateCaregiverProfile(
-                        CaregiverProfileEntity(email, experienceYears = experience, certifications = certs, availability = availability, hourlyRate = rate.toDoubleOrNull() ?: 0.0, city = city, state = state, verified = profile?.verified ?: false),
-                        onDone = onSaved
-                    )
+                    attemptedSave = true
+                    if (formValid) {
+                        val availability = "$availabilityStart-$availabilityEnd"
+                        viewModel.updateCaregiverProfile(
+                            CaregiverProfileEntity(
+                                email = email,
+                                photoUri = profile?.photoUri ?: "default",
+                                experienceYears = experience,
+                                certifications = certs,
+                                availability = availability,
+                                availabilityStart = availabilityStart,
+                                availabilityEnd = availabilityEnd,
+                                availabilityExceptions = availabilityExceptions.trim(),
+                                hourlyRate = baseRate ?: 0.0,
+                                extraChildRate = extraChildRate,
+                                city = city,
+                                state = state,
+                                verified = profile?.verified ?: false
+                            ),
+                            onDone = onSaved
+                        )
+                    }
                 },
                 modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
             ) {
@@ -165,6 +270,71 @@ fun CaregiverProfileScreen(
             }
         }
     }
+
+    if (showStartPicker) {
+        TimePickerDialog(
+            initialValue = availabilityStart,
+            onDismiss = { showStartPicker = false },
+            onConfirm = {
+                availabilityStart = it
+                showStartPicker = false
+            }
+        )
+    }
+    if (showEndPicker) {
+        TimePickerDialog(
+            initialValue = availabilityEnd,
+            onDismiss = { showEndPicker = false },
+            onConfirm = {
+                availabilityEnd = it
+                showEndPicker = false
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimePickerDialog(
+    initialValue: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    val (initialHour, initialMinute) = parseTime(initialValue)
+    val state = rememberTimePickerState(initialHour = initialHour, initialMinute = initialMinute)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = { onConfirm(String.format(Locale.US, "%02d:%02d", state.hour, state.minute)) }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancelar") }
+        },
+        text = { TimePicker(state) }
+    )
+}
+
+private fun parseTime(value: String): Pair<Int, Int> {
+    val parts = value.split(":")
+    val hour = parts.getOrNull(0)?.toIntOrNull()?.coerceIn(0, 23) ?: 8
+    val minute = parts.getOrNull(1)?.toIntOrNull()?.coerceIn(0, 59) ?: 0
+    return hour to minute
+}
+
+private fun sanitizeDecimalInput(input: String): String {
+    val normalized = input.replace(',', '.').filter { it.isDigit() || it == '.' }
+    val dot = normalized.indexOf('.')
+    if (dot == -1) return normalized.take(5)
+    val integer = normalized.take(dot).take(5)
+    val decimals = normalized.drop(dot + 1).replace(".", "").take(2)
+    return "$integer.$decimals"
+}
+
+private fun Double.toEditableMoney(): String {
+    if (this == 0.0) return ""
+    return String.format(Locale.US, "%.2f", this).trimEnd('0').trimEnd('.')
 }
 
 @Composable

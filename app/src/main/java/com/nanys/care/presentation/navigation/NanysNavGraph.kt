@@ -183,7 +183,13 @@ fun NanysNavGraph(
             ChatDetailScreen(
                 viewModel, other, readOnly = readOnly,
                 onBack = { navController.popBackStack() },
-                onOpenProfile = { navController.navigate(NavRoutes.caregiverPublic(it)) }
+                onOpenProfile = {
+                    when (viewModel.userRole) {
+                        UserRole.CUIDADOR -> navController.navigate(NavRoutes.tutorPrivate(it))
+                        UserRole.TUTOR -> navController.navigate(NavRoutes.caregiverPublic(it))
+                        else -> Unit
+                    }
+                }
             )
         }
         composable(NavRoutes.SETTINGS) {

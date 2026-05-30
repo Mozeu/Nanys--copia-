@@ -112,7 +112,7 @@ fun ButtonIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, text: Stri
 fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
@@ -120,6 +120,40 @@ fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
             Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
             Spacer(Modifier.height(4.dp))
             Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+fun DashboardGridCard(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    modifier: Modifier = Modifier,
+    subtitle: String = "",
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier
+            .height(104.dp)
+            .padding(4.dp),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(1.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
+            Column {
+                Text(title, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
+                if (subtitle.isNotBlank()) {
+                    Text(subtitle, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface.copy(0.62f))
+                }
+            }
         }
     }
 }
@@ -137,7 +171,7 @@ fun BookingCard(booking: Booking, onClick: (() -> Unit)? = null) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.Top) {
@@ -169,6 +203,12 @@ fun BookingCard(booking: Booking, onClick: (() -> Unit)? = null) {
                 }
                 if (booking.additionalNotes.isNotBlank()) {
                     Text("Notas: ${booking.additionalNotes}", style = MaterialTheme.typography.bodySmall)
+                }
+                if (booking.hourlyRate > 0.0) {
+                    Text(
+                        "Tarifa base: $${String.format("%.2f", booking.hourlyRate)}/h · Niño extra: $${String.format("%.2f", booking.extraChildRate)}/h",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
                 Text("Total: $${String.format("%.2f", booking.totalPrice)} · ${booking.status.name}")
             }

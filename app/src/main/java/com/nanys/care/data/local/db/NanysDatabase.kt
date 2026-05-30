@@ -24,7 +24,7 @@ import com.nanys.care.data.local.entity.UserEntity
         MessageEntity::class,
         CatalogItemEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class NanysDatabase : RoomDatabase() {

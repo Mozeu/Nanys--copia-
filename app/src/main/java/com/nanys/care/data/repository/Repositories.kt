@@ -98,12 +98,14 @@ class BookingRepository(
         location: String,
         childIds: List<Long>,
         additionalNotes: String,
-        hourlyRate: Double
+        hourlyRate: Double,
+        extraChildRate: Double
     ): Long {
         require(childIds.isNotEmpty()) { "Selecciona al menos un hijo/a" }
         val endHour = startHour + durationHours
         val timeSlot = String.format("%02d:%02d-%02d:%02d", startHour, startMinute, endHour, startMinute)
-        val total = hourlyRate * durationHours
+        val extraChildren = (childIds.size - 1).coerceAtLeast(0)
+        val total = (hourlyRate + extraChildren * extraChildRate) * durationHours
         val id = db.bookingDao().insert(
             BookingEntity(
                 tutorEmail = tutorEmail,
@@ -167,12 +169,15 @@ class BookingRepository(
             .ifEmpty { booking.childId?.let { listOf(it) } ?: emptyList() }
         val children = selectedChildIds.mapNotNull { db.childDao().getById(it) }
         val tutorProfile = db.tutorProfileDao().getByEmail(booking.tutorEmail)
+        val caregiverProfile = db.caregiverProfileDao().getByEmail(booking.caregiverEmail)
         booking.toDomain(
             tutorName = tutor?.fullName ?: "",
             caregiverName = caregiver?.fullName ?: "",
             childName = children.joinToString(", ") { it.name },
             childIdsParam = selectedChildIds,
-            tutorNotes = tutorProfile?.notes ?: ""
+            tutorNotes = tutorProfile?.notes ?: "",
+            hourlyRate = caregiverProfile?.hourlyRate ?: 0.0,
+            extraChildRate = caregiverProfile?.extraChildRate ?: 0.0
         )
     }
     fun observeByCaregiver(email: String) = db.bookingDao().observeByCaregiver(email)

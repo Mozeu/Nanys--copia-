@@ -23,7 +23,11 @@ data class CaregiverProfileEntity(
     val experienceYears: Int = 0,
     val certifications: String = "",
     val availability: String = "",
+    val availabilityStart: String = "",
+    val availabilityEnd: String = "",
+    val availabilityExceptions: String = "",
     val hourlyRate: Double = 0.0,
+    val extraChildRate: Double = 0.0,
     val city: String = "",
     val state: String = "",
     val verified: Boolean = false

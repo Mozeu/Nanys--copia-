@@ -47,7 +47,7 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `caregiver_profiles` (`email`,`photoUri`,`experienceYears`,`certifications`,`availability`,`hourlyRate`,`city`,`state`,`verified`) VALUES (?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `caregiver_profiles` (`email`,`photoUri`,`experienceYears`,`certifications`,`availability`,`availabilityStart`,`availabilityEnd`,`availabilityExceptions`,`hourlyRate`,`extraChildRate`,`city`,`state`,`verified`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -58,18 +58,22 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
         statement.bindLong(3, entity.getExperienceYears());
         statement.bindString(4, entity.getCertifications());
         statement.bindString(5, entity.getAvailability());
-        statement.bindDouble(6, entity.getHourlyRate());
-        statement.bindString(7, entity.getCity());
-        statement.bindString(8, entity.getState());
+        statement.bindString(6, entity.getAvailabilityStart());
+        statement.bindString(7, entity.getAvailabilityEnd());
+        statement.bindString(8, entity.getAvailabilityExceptions());
+        statement.bindDouble(9, entity.getHourlyRate());
+        statement.bindDouble(10, entity.getExtraChildRate());
+        statement.bindString(11, entity.getCity());
+        statement.bindString(12, entity.getState());
         final int _tmp = entity.getVerified() ? 1 : 0;
-        statement.bindLong(9, _tmp);
+        statement.bindLong(13, _tmp);
       }
     };
     this.__updateAdapterOfCaregiverProfileEntity = new EntityDeletionOrUpdateAdapter<CaregiverProfileEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `caregiver_profiles` SET `email` = ?,`photoUri` = ?,`experienceYears` = ?,`certifications` = ?,`availability` = ?,`hourlyRate` = ?,`city` = ?,`state` = ?,`verified` = ? WHERE `email` = ?";
+        return "UPDATE OR ABORT `caregiver_profiles` SET `email` = ?,`photoUri` = ?,`experienceYears` = ?,`certifications` = ?,`availability` = ?,`availabilityStart` = ?,`availabilityEnd` = ?,`availabilityExceptions` = ?,`hourlyRate` = ?,`extraChildRate` = ?,`city` = ?,`state` = ?,`verified` = ? WHERE `email` = ?";
       }
 
       @Override
@@ -80,12 +84,16 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
         statement.bindLong(3, entity.getExperienceYears());
         statement.bindString(4, entity.getCertifications());
         statement.bindString(5, entity.getAvailability());
-        statement.bindDouble(6, entity.getHourlyRate());
-        statement.bindString(7, entity.getCity());
-        statement.bindString(8, entity.getState());
+        statement.bindString(6, entity.getAvailabilityStart());
+        statement.bindString(7, entity.getAvailabilityEnd());
+        statement.bindString(8, entity.getAvailabilityExceptions());
+        statement.bindDouble(9, entity.getHourlyRate());
+        statement.bindDouble(10, entity.getExtraChildRate());
+        statement.bindString(11, entity.getCity());
+        statement.bindString(12, entity.getState());
         final int _tmp = entity.getVerified() ? 1 : 0;
-        statement.bindLong(9, _tmp);
-        statement.bindString(10, entity.getEmail());
+        statement.bindLong(13, _tmp);
+        statement.bindString(14, entity.getEmail());
       }
     };
     this.__preparedStmtOfUpdateVerified = new SharedSQLiteStatement(__db) {
@@ -184,7 +192,11 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
           final int _cursorIndexOfExperienceYears = CursorUtil.getColumnIndexOrThrow(_cursor, "experienceYears");
           final int _cursorIndexOfCertifications = CursorUtil.getColumnIndexOrThrow(_cursor, "certifications");
           final int _cursorIndexOfAvailability = CursorUtil.getColumnIndexOrThrow(_cursor, "availability");
+          final int _cursorIndexOfAvailabilityStart = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityStart");
+          final int _cursorIndexOfAvailabilityEnd = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityEnd");
+          final int _cursorIndexOfAvailabilityExceptions = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityExceptions");
           final int _cursorIndexOfHourlyRate = CursorUtil.getColumnIndexOrThrow(_cursor, "hourlyRate");
+          final int _cursorIndexOfExtraChildRate = CursorUtil.getColumnIndexOrThrow(_cursor, "extraChildRate");
           final int _cursorIndexOfCity = CursorUtil.getColumnIndexOrThrow(_cursor, "city");
           final int _cursorIndexOfState = CursorUtil.getColumnIndexOrThrow(_cursor, "state");
           final int _cursorIndexOfVerified = CursorUtil.getColumnIndexOrThrow(_cursor, "verified");
@@ -200,8 +212,16 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
             _tmpCertifications = _cursor.getString(_cursorIndexOfCertifications);
             final String _tmpAvailability;
             _tmpAvailability = _cursor.getString(_cursorIndexOfAvailability);
+            final String _tmpAvailabilityStart;
+            _tmpAvailabilityStart = _cursor.getString(_cursorIndexOfAvailabilityStart);
+            final String _tmpAvailabilityEnd;
+            _tmpAvailabilityEnd = _cursor.getString(_cursorIndexOfAvailabilityEnd);
+            final String _tmpAvailabilityExceptions;
+            _tmpAvailabilityExceptions = _cursor.getString(_cursorIndexOfAvailabilityExceptions);
             final double _tmpHourlyRate;
             _tmpHourlyRate = _cursor.getDouble(_cursorIndexOfHourlyRate);
+            final double _tmpExtraChildRate;
+            _tmpExtraChildRate = _cursor.getDouble(_cursorIndexOfExtraChildRate);
             final String _tmpCity;
             _tmpCity = _cursor.getString(_cursorIndexOfCity);
             final String _tmpState;
@@ -210,7 +230,7 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfVerified);
             _tmpVerified = _tmp != 0;
-            _result = new CaregiverProfileEntity(_tmpEmail,_tmpPhotoUri,_tmpExperienceYears,_tmpCertifications,_tmpAvailability,_tmpHourlyRate,_tmpCity,_tmpState,_tmpVerified);
+            _result = new CaregiverProfileEntity(_tmpEmail,_tmpPhotoUri,_tmpExperienceYears,_tmpCertifications,_tmpAvailability,_tmpAvailabilityStart,_tmpAvailabilityEnd,_tmpAvailabilityExceptions,_tmpHourlyRate,_tmpExtraChildRate,_tmpCity,_tmpState,_tmpVerified);
           } else {
             _result = null;
           }
@@ -240,7 +260,11 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
           final int _cursorIndexOfExperienceYears = CursorUtil.getColumnIndexOrThrow(_cursor, "experienceYears");
           final int _cursorIndexOfCertifications = CursorUtil.getColumnIndexOrThrow(_cursor, "certifications");
           final int _cursorIndexOfAvailability = CursorUtil.getColumnIndexOrThrow(_cursor, "availability");
+          final int _cursorIndexOfAvailabilityStart = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityStart");
+          final int _cursorIndexOfAvailabilityEnd = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityEnd");
+          final int _cursorIndexOfAvailabilityExceptions = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityExceptions");
           final int _cursorIndexOfHourlyRate = CursorUtil.getColumnIndexOrThrow(_cursor, "hourlyRate");
+          final int _cursorIndexOfExtraChildRate = CursorUtil.getColumnIndexOrThrow(_cursor, "extraChildRate");
           final int _cursorIndexOfCity = CursorUtil.getColumnIndexOrThrow(_cursor, "city");
           final int _cursorIndexOfState = CursorUtil.getColumnIndexOrThrow(_cursor, "state");
           final int _cursorIndexOfVerified = CursorUtil.getColumnIndexOrThrow(_cursor, "verified");
@@ -256,8 +280,16 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
             _tmpCertifications = _cursor.getString(_cursorIndexOfCertifications);
             final String _tmpAvailability;
             _tmpAvailability = _cursor.getString(_cursorIndexOfAvailability);
+            final String _tmpAvailabilityStart;
+            _tmpAvailabilityStart = _cursor.getString(_cursorIndexOfAvailabilityStart);
+            final String _tmpAvailabilityEnd;
+            _tmpAvailabilityEnd = _cursor.getString(_cursorIndexOfAvailabilityEnd);
+            final String _tmpAvailabilityExceptions;
+            _tmpAvailabilityExceptions = _cursor.getString(_cursorIndexOfAvailabilityExceptions);
             final double _tmpHourlyRate;
             _tmpHourlyRate = _cursor.getDouble(_cursorIndexOfHourlyRate);
+            final double _tmpExtraChildRate;
+            _tmpExtraChildRate = _cursor.getDouble(_cursorIndexOfExtraChildRate);
             final String _tmpCity;
             _tmpCity = _cursor.getString(_cursorIndexOfCity);
             final String _tmpState;
@@ -266,7 +298,7 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfVerified);
             _tmpVerified = _tmp != 0;
-            _result = new CaregiverProfileEntity(_tmpEmail,_tmpPhotoUri,_tmpExperienceYears,_tmpCertifications,_tmpAvailability,_tmpHourlyRate,_tmpCity,_tmpState,_tmpVerified);
+            _result = new CaregiverProfileEntity(_tmpEmail,_tmpPhotoUri,_tmpExperienceYears,_tmpCertifications,_tmpAvailability,_tmpAvailabilityStart,_tmpAvailabilityEnd,_tmpAvailabilityExceptions,_tmpHourlyRate,_tmpExtraChildRate,_tmpCity,_tmpState,_tmpVerified);
           } else {
             _result = null;
           }
@@ -298,7 +330,11 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
           final int _cursorIndexOfExperienceYears = CursorUtil.getColumnIndexOrThrow(_cursor, "experienceYears");
           final int _cursorIndexOfCertifications = CursorUtil.getColumnIndexOrThrow(_cursor, "certifications");
           final int _cursorIndexOfAvailability = CursorUtil.getColumnIndexOrThrow(_cursor, "availability");
+          final int _cursorIndexOfAvailabilityStart = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityStart");
+          final int _cursorIndexOfAvailabilityEnd = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityEnd");
+          final int _cursorIndexOfAvailabilityExceptions = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityExceptions");
           final int _cursorIndexOfHourlyRate = CursorUtil.getColumnIndexOrThrow(_cursor, "hourlyRate");
+          final int _cursorIndexOfExtraChildRate = CursorUtil.getColumnIndexOrThrow(_cursor, "extraChildRate");
           final int _cursorIndexOfCity = CursorUtil.getColumnIndexOrThrow(_cursor, "city");
           final int _cursorIndexOfState = CursorUtil.getColumnIndexOrThrow(_cursor, "state");
           final int _cursorIndexOfVerified = CursorUtil.getColumnIndexOrThrow(_cursor, "verified");
@@ -315,8 +351,16 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
             _tmpCertifications = _cursor.getString(_cursorIndexOfCertifications);
             final String _tmpAvailability;
             _tmpAvailability = _cursor.getString(_cursorIndexOfAvailability);
+            final String _tmpAvailabilityStart;
+            _tmpAvailabilityStart = _cursor.getString(_cursorIndexOfAvailabilityStart);
+            final String _tmpAvailabilityEnd;
+            _tmpAvailabilityEnd = _cursor.getString(_cursorIndexOfAvailabilityEnd);
+            final String _tmpAvailabilityExceptions;
+            _tmpAvailabilityExceptions = _cursor.getString(_cursorIndexOfAvailabilityExceptions);
             final double _tmpHourlyRate;
             _tmpHourlyRate = _cursor.getDouble(_cursorIndexOfHourlyRate);
+            final double _tmpExtraChildRate;
+            _tmpExtraChildRate = _cursor.getDouble(_cursorIndexOfExtraChildRate);
             final String _tmpCity;
             _tmpCity = _cursor.getString(_cursorIndexOfCity);
             final String _tmpState;
@@ -325,7 +369,7 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfVerified);
             _tmpVerified = _tmp != 0;
-            _item = new CaregiverProfileEntity(_tmpEmail,_tmpPhotoUri,_tmpExperienceYears,_tmpCertifications,_tmpAvailability,_tmpHourlyRate,_tmpCity,_tmpState,_tmpVerified);
+            _item = new CaregiverProfileEntity(_tmpEmail,_tmpPhotoUri,_tmpExperienceYears,_tmpCertifications,_tmpAvailability,_tmpAvailabilityStart,_tmpAvailabilityEnd,_tmpAvailabilityExceptions,_tmpHourlyRate,_tmpExtraChildRate,_tmpCity,_tmpState,_tmpVerified);
             _result.add(_item);
           }
           return _result;
@@ -353,9 +397,15 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
             + "          AND cp.hourlyRate >= ?\n"
             + "          AND cp.hourlyRate <= ?\n"
             + "          AND cp.experienceYears >= ?\n"
-            + "          AND (? = '' OR cp.availability LIKE '%' || ? || '%')\n"
+            + "          AND (\n"
+            + "              ? = ''\n"
+            + "              OR cp.availability LIKE '%' || ? || '%'\n"
+            + "              OR cp.availabilityStart LIKE '%' || ? || '%'\n"
+            + "              OR cp.availabilityEnd LIKE '%' || ? || '%'\n"
+            + "              OR cp.availabilityExceptions LIKE '%' || ? || '%'\n"
+            + "          )\n"
             + "        ";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 9);
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 12);
     int _argIndex = 1;
     _statement.bindString(_argIndex, city);
     _argIndex = 2;
@@ -374,6 +424,12 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
     _statement.bindString(_argIndex, availability);
     _argIndex = 9;
     _statement.bindString(_argIndex, availability);
+    _argIndex = 10;
+    _statement.bindString(_argIndex, availability);
+    _argIndex = 11;
+    _statement.bindString(_argIndex, availability);
+    _argIndex = 12;
+    _statement.bindString(_argIndex, availability);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"caregiver_profiles",
         "users"}, new Callable<List<CaregiverProfileEntity>>() {
       @Override
@@ -386,7 +442,11 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
           final int _cursorIndexOfExperienceYears = CursorUtil.getColumnIndexOrThrow(_cursor, "experienceYears");
           final int _cursorIndexOfCertifications = CursorUtil.getColumnIndexOrThrow(_cursor, "certifications");
           final int _cursorIndexOfAvailability = CursorUtil.getColumnIndexOrThrow(_cursor, "availability");
+          final int _cursorIndexOfAvailabilityStart = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityStart");
+          final int _cursorIndexOfAvailabilityEnd = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityEnd");
+          final int _cursorIndexOfAvailabilityExceptions = CursorUtil.getColumnIndexOrThrow(_cursor, "availabilityExceptions");
           final int _cursorIndexOfHourlyRate = CursorUtil.getColumnIndexOrThrow(_cursor, "hourlyRate");
+          final int _cursorIndexOfExtraChildRate = CursorUtil.getColumnIndexOrThrow(_cursor, "extraChildRate");
           final int _cursorIndexOfCity = CursorUtil.getColumnIndexOrThrow(_cursor, "city");
           final int _cursorIndexOfState = CursorUtil.getColumnIndexOrThrow(_cursor, "state");
           final int _cursorIndexOfVerified = CursorUtil.getColumnIndexOrThrow(_cursor, "verified");
@@ -403,8 +463,16 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
             _tmpCertifications = _cursor.getString(_cursorIndexOfCertifications);
             final String _tmpAvailability;
             _tmpAvailability = _cursor.getString(_cursorIndexOfAvailability);
+            final String _tmpAvailabilityStart;
+            _tmpAvailabilityStart = _cursor.getString(_cursorIndexOfAvailabilityStart);
+            final String _tmpAvailabilityEnd;
+            _tmpAvailabilityEnd = _cursor.getString(_cursorIndexOfAvailabilityEnd);
+            final String _tmpAvailabilityExceptions;
+            _tmpAvailabilityExceptions = _cursor.getString(_cursorIndexOfAvailabilityExceptions);
             final double _tmpHourlyRate;
             _tmpHourlyRate = _cursor.getDouble(_cursorIndexOfHourlyRate);
+            final double _tmpExtraChildRate;
+            _tmpExtraChildRate = _cursor.getDouble(_cursorIndexOfExtraChildRate);
             final String _tmpCity;
             _tmpCity = _cursor.getString(_cursorIndexOfCity);
             final String _tmpState;
@@ -413,7 +481,7 @@ public final class CaregiverProfileDao_Impl implements CaregiverProfileDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfVerified);
             _tmpVerified = _tmp != 0;
-            _item = new CaregiverProfileEntity(_tmpEmail,_tmpPhotoUri,_tmpExperienceYears,_tmpCertifications,_tmpAvailability,_tmpHourlyRate,_tmpCity,_tmpState,_tmpVerified);
+            _item = new CaregiverProfileEntity(_tmpEmail,_tmpPhotoUri,_tmpExperienceYears,_tmpCertifications,_tmpAvailability,_tmpAvailabilityStart,_tmpAvailabilityEnd,_tmpAvailabilityExceptions,_tmpHourlyRate,_tmpExtraChildRate,_tmpCity,_tmpState,_tmpVerified);
             _result.add(_item);
           }
           return _result;
