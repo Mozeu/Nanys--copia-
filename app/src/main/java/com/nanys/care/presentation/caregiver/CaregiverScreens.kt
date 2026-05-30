@@ -47,7 +47,8 @@ fun CaregiverDashboardScreen(
         onProfileClick = { onNavigate("caregiver_profile") },
         onMessagesClick = { onNavigate("chat_list") },
         onSettingsClick = { onNavigate("settings") },
-        onLogout = onLogout
+        onLogout = onLogout,
+        profilePhotoUri = caregiverProfile?.photoUri ?: "default"
     ) { padding ->
         Column(Modifier.padding(padding).padding(16.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -89,7 +90,18 @@ private fun NavigationButton(text: String, icon: androidx.compose.ui.graphics.ve
 @Composable
 fun CaregiverRequestsScreen(viewModel: NanysViewModel, onBack: () -> Unit, onViewTutor: (String) -> Unit) {
     val bookings by viewModel.bookings.collectAsState()
+    val error by viewModel.error.collectAsState()
     val pending = bookings.filter { it.status == BookingStatus.PENDING }
+    if (error != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::clearError,
+            title = { Text("No se pudo aceptar") },
+            text = { Text(error.orEmpty()) },
+            confirmButton = {
+                TextButton(onClick = viewModel::clearError) { Text("OK") }
+            }
+        )
+    }
     NanysScaffold(title = "Solicitudes", onLogout = onBack, showProfileMenu = false) { padding ->
         LazyColumn(Modifier.padding(padding).padding(16.dp)) {
             items(pending) { booking ->
@@ -126,6 +138,7 @@ fun CaregiverProfileScreen(
     onSaved: () -> Unit = onBack
 ) {
     val email = viewModel.userEmail ?: return
+    var photoUri by remember { mutableStateOf("default") }
     var experience by remember { mutableIntStateOf(0) }
     var certs by remember { mutableStateOf("") }
     var availabilityStart by remember { mutableStateOf("") }
@@ -148,6 +161,7 @@ fun CaregiverProfileScreen(
     val profile by viewModel.selectedCaregiver.collectAsState()
     LaunchedEffect(profile) {
         profile?.let {
+            photoUri = it.photoUri
             experience = it.experienceYears
             certs = it.certifications
             availabilityStart = it.availabilityStart.ifBlank { it.availability.substringBefore("-", "") }
@@ -174,9 +188,14 @@ fun CaregiverProfileScreen(
     NanysScaffold(title = "Mi perfil", onLogout = onBack, showProfileMenu = false) { padding ->
         Column(Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState())) {
             profile?.let {
-                Text(it.fullName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                RatingStars(it.averageRating)
-                Text("${it.reviewCount} reseñas")
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    EditableProfilePhoto(photoUri = photoUri, onPhotoSelected = { selected -> photoUri = selected })
+                    Column {
+                        Text(it.fullName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                        RatingStars(it.averageRating)
+                        Text("${it.reviewCount} reseñas")
+                    }
+                }
             }
             Spacer(Modifier.height(16.dp))
             OutlinedTextField(
@@ -247,7 +266,7 @@ fun CaregiverProfileScreen(
                         viewModel.updateCaregiverProfile(
                             CaregiverProfileEntity(
                                 email = email,
-                                photoUri = profile?.photoUri ?: "default",
+                                photoUri = photoUri,
                                 experienceYears = experience,
                                 certifications = certs,
                                 availability = availability,

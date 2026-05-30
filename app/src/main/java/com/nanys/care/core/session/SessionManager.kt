@@ -18,6 +18,10 @@ class SessionManager(context: Context) {
         get() = prefs.getString(KEY_ROLE, null)?.let { UserRole.fromString(it) }
         set(value) = prefs.edit().putString(KEY_ROLE, value?.name).apply()
 
+    var darkThemeEnabled: Boolean
+        get() = prefs.getBoolean(KEY_DARK_THEME, false)
+        set(value) = prefs.edit().putBoolean(KEY_DARK_THEME, value).apply()
+
     fun saveSession(email: String, role: UserRole) {
         prefs.edit()
             .putBoolean(KEY_LOGGED_IN, true)
@@ -27,7 +31,11 @@ class SessionManager(context: Context) {
     }
 
     fun clearSession() {
-        prefs.edit().clear().apply()
+        prefs.edit()
+            .remove(KEY_LOGGED_IN)
+            .remove(KEY_EMAIL)
+            .remove(KEY_ROLE)
+            .apply()
     }
 
     companion object {
@@ -35,5 +43,6 @@ class SessionManager(context: Context) {
         private const val KEY_LOGGED_IN = "logged_in"
         private const val KEY_EMAIL = "email"
         private const val KEY_ROLE = "role"
+        private const val KEY_DARK_THEME = "dark_theme"
     }
 }

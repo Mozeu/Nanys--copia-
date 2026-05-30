@@ -20,5 +20,6 @@ data class TutorProfileEntity(
     val city: String = "",
     val state: String = "",
     val notes: String = "",
-    val preferences: String = ""
+    val preferences: String = "",
+    val photoUri: String = "default"
 )

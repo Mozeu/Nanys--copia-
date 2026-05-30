@@ -42,8 +42,9 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val viewModel: NanysViewModel = viewModel(factory = factory)
             val currentUser by viewModel.currentUser.collectAsState()
+            val darkTheme by viewModel.darkTheme.collectAsState()
 
-            NanysTheme(role = currentUser?.role ?: viewModel.userRole) {
+            NanysTheme(darkTheme = darkTheme, role = currentUser?.role ?: viewModel.userRole) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val start = if (viewModel.isLoggedIn) {
                         startDestinationForRole(viewModel.userRole)

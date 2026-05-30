@@ -33,6 +33,7 @@ data class TutorProfile(
     val state: String,
     val notes: String,
     val preferences: String,
+    val photoUri: String = "default",
     val children: List<Child> = emptyList()
 )
 
@@ -50,6 +51,8 @@ data class Booking(
     val caregiverEmail: String,
     val tutorName: String = "",
     val caregiverName: String = "",
+    val tutorPhotoUri: String = "default",
+    val caregiverPhotoUri: String = "default",
     val date: String,
     val timeSlot: String,
     val durationHours: Int,

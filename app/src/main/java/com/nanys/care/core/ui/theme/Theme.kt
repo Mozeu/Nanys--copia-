@@ -21,8 +21,14 @@ private fun lightColorsFor(primaryColor: Color) = lightColorScheme(
 
 private fun darkColorsFor(primaryColor: Color) = darkColorScheme(
     primary = primaryColor,
+    onPrimary = Color.White,
     secondary = SecondaryGreen,
-    tertiary = TertiaryCoral
+    tertiary = TertiaryCoral,
+    background = BackgroundDark,
+    surface = SurfaceDark,
+    surfaceVariant = Color(0xFF374151),
+    onSurface = OnSurfaceLight,
+    error = ErrorRed
 )
 
 @Composable

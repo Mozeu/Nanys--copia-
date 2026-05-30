@@ -40,6 +40,7 @@ fun TutorProfileEntity.toDomain(fullName: String, children: List<Child> = emptyL
     state = state,
     notes = notes,
     preferences = preferences,
+    photoUri = photoUri,
     children = children
 )
 
@@ -48,6 +49,8 @@ fun ChildEntity.toDomain() = Child(id, tutorEmail, name, age, specialNeeds)
 fun BookingEntity.toDomain(
     tutorName: String = "",
     caregiverName: String = "",
+    tutorPhotoUri: String = "default",
+    caregiverPhotoUri: String = "default",
     childName: String = "",
     childIdsParam: List<Long> = childIds.split(",").mapNotNull { it.toLongOrNull() }
         .ifEmpty { childId?.let { listOf(it) } ?: emptyList() },
@@ -60,6 +63,8 @@ fun BookingEntity.toDomain(
     caregiverEmail = caregiverEmail,
     tutorName = tutorName,
     caregiverName = caregiverName,
+    tutorPhotoUri = tutorPhotoUri,
+    caregiverPhotoUri = caregiverPhotoUri,
     date = date,
     timeSlot = timeSlot,
     durationHours = durationHours,

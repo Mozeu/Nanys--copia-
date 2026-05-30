@@ -1,5 +1,12 @@
 package com.nanys.care.presentation.common
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,9 +22,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import coil.compose.AsyncImage
 import com.nanys.care.R
 import com.nanys.care.core.util.ColorUtil
 import com.nanys.care.domain.model.Booking
@@ -32,6 +44,7 @@ fun NanysScaffold(
     onSettingsClick: () -> Unit = {},
     onLogout: () -> Unit = {},
     showProfileMenu: Boolean = true,
+    profilePhotoUri: String = "default",
     bottomBar: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -54,13 +67,7 @@ fun NanysScaffold(
                     if (showProfileMenu) {
                         Box {
                             IconButton(onClick = { menuExpanded = true }) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_default_avatar),
-                                    contentDescription = "Menú perfil",
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(CircleShape)
-                                )
+                                ProfilePhoto(photoUri = profilePhotoUri, size = 36.dp)
                             }
                             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                                 DropdownMenuItem(
@@ -99,6 +106,91 @@ fun NanysScaffold(
         bottomBar = bottomBar,
         containerColor = MaterialTheme.colorScheme.background
     ) { padding -> content(padding) }
+}
+
+@Composable
+fun ProfilePhoto(
+    photoUri: String,
+    modifier: Modifier = Modifier,
+    size: Dp = 56.dp
+) {
+    val hasCustomPhoto = photoUri.isNotBlank() && photoUri != "default"
+    Surface(
+        modifier = modifier.size(size),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        if (hasCustomPhoto) {
+            AsyncImage(
+                model = photoUri,
+                contentDescription = "Foto de perfil",
+                placeholder = painterResource(R.drawable.ic_default_avatar),
+                error = painterResource(R.drawable.ic_default_avatar),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().clip(CircleShape)
+            )
+        } else {
+            Image(
+                painter = painterResource(R.drawable.ic_default_avatar),
+                contentDescription = "Foto de perfil",
+                modifier = Modifier.fillMaxSize().padding(8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun EditableProfilePhoto(
+    photoUri: String,
+    onPhotoSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val openDocumentLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (_: SecurityException) {
+                // Some providers grant a temporary read URI only.
+            }
+            onPhotoSelected(it.toString())
+        }
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        openDocumentLauncher.launch(arrayOf("image/*"))
+    }
+    val photoPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Manifest.permission.READ_MEDIA_IMAGES
+    } else {
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+
+    Box(modifier, contentAlignment = Alignment.BottomEnd) {
+        ProfilePhoto(photoUri = photoUri, size = 96.dp)
+        FilledIconButton(
+            onClick = {
+                val granted = ContextCompat.checkSelfPermission(
+                    context,
+                    photoPermission
+                ) == PackageManager.PERMISSION_GRANTED
+                if (granted) {
+                    openDocumentLauncher.launch(arrayOf("image/*"))
+                } else {
+                    permissionLauncher.launch(photoPermission)
+                }
+            },
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(Icons.Default.Edit, contentDescription = "Cambiar foto", modifier = Modifier.size(18.dp))
+        }
+    }
 }
 
 @Composable
@@ -184,8 +276,14 @@ fun BookingCard(booking: Booking, onClick: (() -> Unit)? = null) {
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text("${booking.date} · ${booking.timeSlot}", fontWeight = FontWeight.SemiBold)
-                Text("Cuidador: ${booking.caregiverName.ifBlank { booking.caregiverEmail }}")
-                Text("Tutor: ${booking.tutorName.ifBlank { booking.tutorEmail }}")
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ProfilePhoto(booking.caregiverPhotoUri, size = 32.dp)
+                    Text("Cuidador: ${booking.caregiverName.ifBlank { booking.caregiverEmail }}")
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ProfilePhoto(booking.tutorPhotoUri, size = 32.dp)
+                    Text("Tutor: ${booking.tutorName.ifBlank { booking.tutorEmail }}")
+                }
                 if (booking.childName.isNotBlank()) {
                     val childLabel = if (booking.childIds.size == 1) "Niño/a" else "Niños/as"
                     Text("$childLabel: ${booking.childName}")

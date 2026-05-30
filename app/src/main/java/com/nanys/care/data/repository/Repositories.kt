@@ -133,8 +133,12 @@ class BookingRepository(
         return id
     }
 
-    suspend fun respondBooking(bookingId: Long, accept: Boolean) {
-        val booking = db.bookingDao().getById(bookingId) ?: return
+    suspend fun respondBooking(bookingId: Long, accept: Boolean): Result<Unit> {
+        val booking = db.bookingDao().getById(bookingId)
+            ?: return Result.failure(Exception("Reserva no encontrada"))
+        if (accept && hasAcceptedOverlap(booking)) {
+            return Result.failure(Exception("No puedes aceptar esta cita porque se empalma con otra cita aceptada."))
+        }
         val newStatus = if (accept) BookingStatus.ACCEPTED else BookingStatus.REJECTED
         val color = if (accept) ColorUtil.assignBookingColor(bookingId) else booking.colorHex
         db.bookingDao().update(
@@ -154,7 +158,41 @@ class BookingRepository(
                 caregiverEmail = booking.caregiverEmail
             )
         }
+        return Result.success(Unit)
     }
+
+    private suspend fun hasAcceptedOverlap(booking: BookingEntity): Boolean {
+        val requestedRange = parseTimeRange(booking.timeSlot) ?: return true
+        val acceptedBookings = db.bookingDao().getAcceptedByCaregiverAndDate(
+            caregiverEmail = booking.caregiverEmail,
+            date = booking.date,
+            excludeId = booking.id
+        )
+        return acceptedBookings.any { accepted ->
+            val acceptedRange = parseTimeRange(accepted.timeSlot) ?: return@any true
+            rangesOverlap(requestedRange, acceptedRange)
+        }
+    }
+
+    private fun parseTimeRange(timeSlot: String): IntRange? {
+        val parts = timeSlot.split("-")
+        if (parts.size != 2) return null
+        val start = parseMinutes(parts[0]) ?: return null
+        val end = parseMinutes(parts[1]) ?: return null
+        if (end <= start) return null
+        return start until end
+    }
+
+    private fun parseMinutes(value: String): Int? {
+        val parts = value.trim().split(":")
+        val hour = parts.getOrNull(0)?.toIntOrNull() ?: return null
+        val minute = parts.getOrNull(1)?.toIntOrNull() ?: return null
+        if (hour < 0 || minute !in 0..59) return null
+        return hour * 60 + minute
+    }
+
+    private fun rangesOverlap(first: IntRange, second: IntRange): Boolean =
+        first.first <= second.last && second.first <= first.last
 
     suspend fun completeBooking(bookingId: Long) {
         val booking = db.bookingDao().getById(bookingId) ?: return
@@ -173,6 +211,8 @@ class BookingRepository(
         booking.toDomain(
             tutorName = tutor?.fullName ?: "",
             caregiverName = caregiver?.fullName ?: "",
+            tutorPhotoUri = tutorProfile?.photoUri ?: "default",
+            caregiverPhotoUri = caregiverProfile?.photoUri ?: "default",
             childName = children.joinToString(", ") { it.name },
             childIdsParam = selectedChildIds,
             tutorNotes = tutorProfile?.notes ?: "",

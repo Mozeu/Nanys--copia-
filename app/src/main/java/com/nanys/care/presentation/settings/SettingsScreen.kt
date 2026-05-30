@@ -10,11 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nanys.care.presentation.common.NanysScaffold
+import com.nanys.care.presentation.viewmodel.NanysViewModel
 
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsScreen(viewModel: NanysViewModel, onBack: () -> Unit) {
     var notificationsEnabled by remember { mutableStateOf(true) }
-    var darkTheme by remember { mutableStateOf(false) }
+    val darkTheme by viewModel.darkTheme.collectAsState()
 
     NanysScaffold(title = "Configuración", onLogout = onBack, showProfileMenu = false) { padding ->
         Column(Modifier.padding(padding).padding(16.dp)) {
@@ -40,7 +41,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                     Icon(Icons.Default.Settings, null, tint = MaterialTheme.colorScheme.primary)
                     Text("Tema oscuro")
                 }
-                Switch(checked = darkTheme, onCheckedChange = { darkTheme = it })
+                Switch(checked = darkTheme, onCheckedChange = viewModel::setDarkTheme)
             }
             Spacer(Modifier.height(16.dp))
             Text("Nanys Care v1.0 — Datos almacenados localmente con Room.", style = MaterialTheme.typography.bodySmall)

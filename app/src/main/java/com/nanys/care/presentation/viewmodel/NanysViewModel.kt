@@ -72,6 +72,9 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
     private val _todayMessages = MutableStateFlow(0)
     val todayMessages: StateFlow<Int> = _todayMessages.asStateFlow()
 
+    private val _darkTheme = MutableStateFlow(container.sessionManager.darkThemeEnabled)
+    val darkTheme: StateFlow<Boolean> = _darkTheme.asStateFlow()
+
     val isLoggedIn: Boolean get() = container.sessionManager.isLoggedIn
     val userRole: UserRole? get() = container.sessionManager.userRole
     val userEmail: String? get() = container.sessionManager.userEmail
@@ -148,6 +151,11 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
 
     fun clearError() { _error.value = null }
 
+    fun setDarkTheme(enabled: Boolean) {
+        container.sessionManager.darkThemeEnabled = enabled
+        _darkTheme.value = enabled
+    }
+
     fun searchCaregivers(filter: CaregiverSearchFilter) {
         viewModelScope.launch {
             _searchResults.value = container.caregiverRepository.searchCaregivers(filter)
@@ -187,7 +195,8 @@ class NanysViewModel(private val container: AppContainer) : ViewModel() {
     fun respondBooking(id: Long, accept: Boolean) {
         viewModelScope.launch {
             container.bookingRepository.respondBooking(id, accept)
-            userEmail?.let { loadRoleData(it) }
+                .onSuccess { userEmail?.let { loadRoleData(it) } }
+                .onFailure { _error.value = it.message }
         }
     }
 

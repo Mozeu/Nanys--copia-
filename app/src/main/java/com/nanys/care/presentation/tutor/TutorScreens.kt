@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,20 +27,26 @@ import com.nanys.care.presentation.caregiver.DropdownField
 import com.nanys.care.presentation.common.*
 import com.nanys.care.presentation.viewmodel.NanysViewModel
 import java.time.LocalDate
+import java.time.ZoneOffset
 
 @Composable
 fun TutorDashboardScreen(viewModel: NanysViewModel, onNavigate: (String) -> Unit, onLogout: () -> Unit) {
+    val email = viewModel.userEmail
     val bookings by viewModel.bookings.collectAsState()
     val upcoming = bookings.count { it.status == BookingStatus.ACCEPTED || it.status == BookingStatus.PENDING }
     val pending = bookings.count { it.status == BookingStatus.PENDING }
     val accepted = bookings.count { it.status == BookingStatus.ACCEPTED }
     val searchResults by viewModel.searchResults.collectAsState()
+    val tutorProfile by viewModel.selectedTutor.collectAsState()
     val appointmentCaregivers = bookings
         .filter { it.status == BookingStatus.ACCEPTED || it.status == BookingStatus.PENDING }
         .distinctBy { it.caregiverEmail }
 
-    LaunchedEffect(Unit) {
-        viewModel.userEmail?.let { viewModel.loadBookingsForTutor(it) }
+    LaunchedEffect(email) {
+        email?.let {
+            viewModel.loadBookingsForTutor(it)
+            viewModel.loadTutorPrivate(it)
+        }
         viewModel.loadTopCaregivers()
     }
 
@@ -48,7 +55,8 @@ fun TutorDashboardScreen(viewModel: NanysViewModel, onNavigate: (String) -> Unit
         onProfileClick = { onNavigate("tutor_profile") },
         onMessagesClick = { onNavigate("chat_list") },
         onSettingsClick = { onNavigate("settings") },
-        onLogout = onLogout
+        onLogout = onLogout,
+        profilePhotoUri = tutorProfile?.photoUri ?: "default"
     ) { padding ->
         Column(Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState())) {
             SearchShortcut(onClick = { onNavigate("tutor_search") })
@@ -133,8 +141,8 @@ private fun NavigationChip(
 @Composable
 fun CaregiverListItem(cg: CaregiverProfile, onClick: () -> Unit) {
     Card(onClick = onClick, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = RoundedCornerShape(8.dp)) {
-        Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Icon(Icons.Default.ChildCare, null, tint = MaterialTheme.colorScheme.primary)
+        Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            ProfilePhoto(cg.photoUri, size = 52.dp)
             Column(Modifier.weight(1f)) {
                 Text(cg.fullName, fontWeight = FontWeight.SemiBold)
                 RatingStars(cg.averageRating)
@@ -210,9 +218,14 @@ fun CaregiverPublicProfileScreen(viewModel: NanysViewModel, email: String, onBac
         profile?.let { cg ->
             val availability = availabilityText(cg)
             Column(Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState())) {
-                Text(cg.fullName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                RatingStars(cg.averageRating)
-                Text("${cg.reviewCount} reseñas · ${if (cg.verified) "Verificado ✓" else "No verificado"}")
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    ProfilePhoto(cg.photoUri, size = 96.dp)
+                    Column {
+                        Text(cg.fullName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                        RatingStars(cg.averageRating)
+                        Text("${cg.reviewCount} reseñas · ${if (cg.verified) "Verificado ✓" else "No verificado"}")
+                    }
+                }
                 Spacer(Modifier.height(8.dp))
                 ProfileInfoRow(Icons.Default.Place, "${cg.city}, ${cg.state}")
                 ProfileInfoRow(Icons.Default.Work, "${cg.experienceYears} años de experiencia")
@@ -348,13 +361,16 @@ fun BookAppointmentScreen(viewModel: NanysViewModel, caregiverEmail: String, onB
     }
 
     if (showDatePicker) {
-        val state = rememberDatePickerState()
+        val initialDateMillis = remember(date) {
+            LocalDate.parse(date).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        }
+        val state = rememberDatePickerState(initialSelectedDateMillis = initialDateMillis)
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
                     state.selectedDateMillis?.let { millis ->
-                        date = java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString()
+                        date = java.time.Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate().toString()
                     }
                     showDatePicker = false
                 }) { Text("OK") }
@@ -442,6 +458,7 @@ fun TutorProfileScreen(
     onSaved: () -> Unit = onBack
 ) {
     val email = viewModel.userEmail ?: return
+    var photoUri by remember { mutableStateOf("default") }
     var city by remember { mutableStateOf("") }
     var state by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
@@ -456,12 +473,22 @@ fun TutorProfileScreen(
     LaunchedEffect(email) { viewModel.loadTutorPrivate(email) }
     val profile by viewModel.selectedTutor.collectAsState()
     LaunchedEffect(profile) {
-        profile?.let { city = it.city; state = it.state; notes = it.notes; preferences = it.preferences }
+        profile?.let {
+            photoUri = it.photoUri
+            city = it.city
+            state = it.state
+            notes = it.notes
+            preferences = it.preferences
+        }
     }
 
     NanysScaffold(title = "Mi perfil", onLogout = onBack, showProfileMenu = false) { padding ->
         Column(Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState())) {
-            Text(profile?.fullName ?: "", style = MaterialTheme.typography.headlineSmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                EditableProfilePhoto(photoUri = photoUri, onPhotoSelected = { selected -> photoUri = selected })
+                Text(profile?.fullName ?: "", style = MaterialTheme.typography.headlineSmall)
+            }
+            Spacer(Modifier.height(16.dp))
             DropdownField("Ciudad", city, cities) { city = it }
             DropdownField("Estado", state, states) { state = it }
             OutlinedTextField(notes, { notes = it }, label = { Text("Notas personales") }, modifier = Modifier.fillMaxWidth())
@@ -469,7 +496,14 @@ fun TutorProfileScreen(
             Button(
                 onClick = {
                     viewModel.updateTutorProfile(
-                        TutorProfileEntity(email, city, state, notes, preferences),
+                        TutorProfileEntity(
+                            email = email,
+                            city = city,
+                            state = state,
+                            notes = notes,
+                            preferences = preferences,
+                            photoUri = photoUri
+                        ),
                         onDone = onSaved
                     )
                 },
@@ -534,7 +568,11 @@ fun TutorPrivateProfileScreen(viewModel: NanysViewModel, email: String, onBack: 
     NanysScaffold(title = "Perfil tutor", onLogout = onBack, showProfileMenu = false) { padding ->
         profile?.let { t ->
             Column(Modifier.padding(padding).padding(16.dp)) {
-                Text(t.fullName, fontWeight = FontWeight.Bold)
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    ProfilePhoto(t.photoUri, size = 72.dp)
+                    Text(t.fullName, fontWeight = FontWeight.Bold)
+                }
+                Spacer(Modifier.height(12.dp))
                 Text("📍 ${t.city}, ${t.state}")
                 Text("📝 Notas: ${t.notes}")
                 Text("Preferencias: ${t.preferences}")

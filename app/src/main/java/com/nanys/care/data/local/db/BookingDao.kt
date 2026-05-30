@@ -19,6 +19,21 @@ interface BookingDao {
     @Query("SELECT * FROM bookings WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): BookingEntity?
 
+    @Query(
+        """
+        SELECT * FROM bookings
+        WHERE caregiverEmail = :caregiverEmail
+          AND date = :date
+          AND status = 'accepted'
+          AND id != :excludeId
+        """
+    )
+    suspend fun getAcceptedByCaregiverAndDate(
+        caregiverEmail: String,
+        date: String,
+        excludeId: Long
+    ): List<BookingEntity>
+
     @Query("SELECT * FROM bookings WHERE caregiverEmail = :email ORDER BY date ASC, timeSlot ASC")
     fun observeByCaregiver(email: String): Flow<List<BookingEntity>>
 

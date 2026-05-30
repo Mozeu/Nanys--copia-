@@ -193,7 +193,7 @@ fun NanysNavGraph(
             )
         }
         composable(NavRoutes.SETTINGS) {
-            SettingsScreen(onBack = { navController.popBackStack() })
+            SettingsScreen(viewModel, onBack = { navController.popBackStack() })
         }
     }
 }
